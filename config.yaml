@@ -1,0 +1,53 @@
+baseURL: https://example.com
+languageCode: en-us
+title: Cactus theme example
+theme: hugo-theme-cactus
+copyright: You
+disqusShortname: example
+menu:
+  main:
+    - name: Home
+      url: /
+      weight: 1
+    - name: Writings
+      url: /posts
+      weight: 2
+    - name: Tags
+      url: /tags
+      weight: 3
+    - name: About
+      url: /about
+      weight: 4
+markup:
+  tableOfContents:
+    endLevel: 4
+    ordered: no
+    startLevel: 2
+params:
+  colortheme: white
+  comments:
+    enabled: no
+    engine: disqus
+  dateFormat: '2006-01-02'
+  description: Hugo is a general-purpose website framework. Technically speaking,
+    Hugo is a static site generator. Unlike systems that dynamically build a page
+    with each visitor request, Hugo builds pages when you create or update your content.
+    Since websites are viewed far more often than they are edited, Hugo is designed
+    to provide an optimal viewing experience for your website’s end users and an ideal
+    writing experience for website authors.
+  googleAnalyticsAsync: yes
+  mainSection: posts
+  postsOnHomePage: 5
+  projectsUrl: https://github.com/gohugoio
+  rss: yes
+  show_updated: no
+  showAllPostsOnHomePage: no
+  showProjectsList: yes
+  social:
+    - link: https://github.com/gohugoio
+      name: github
+    - link: https://www.linkedin.com/company/github/
+      name: linkedin
+    - link: example@example.com
+      name: email
+  tagsOverview: yes
