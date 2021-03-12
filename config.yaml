@@ -15,7 +15,7 @@ menu:
     - name: Tags
       url: /tags
       weight: 3
-    - name: About
+    - name: Friendlinks
       url: /about
       weight: 4
 markup:
@@ -36,8 +36,8 @@ params:
   projectsUrl: https://github.com/gohugoio
   rss: yes
   show_updated: no
-  showAllPostsOnHomePage: no
-  showProjectsList: yes
+  showAllPostsOnHomePage: yes
+  showProjectsList: no
   social:
     - link: https://github.com/Farewellznm
       name: github
