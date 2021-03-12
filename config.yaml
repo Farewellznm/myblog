@@ -1,8 +1,8 @@
 baseURL: https://liuhuisheng.com/
 languageCode: en-us
-title: 纵有疾风起，人生不言弃
+title: 造房子的怪哥哥
 theme: hugo-theme-cactus
-copyright: You
+copyright: LHS
 disqusShortname: LHS
 menu:
   main:
@@ -24,7 +24,7 @@ markup:
     ordered: no
     startLevel: 2
 params:
-  colortheme: white
+  colortheme: classic
   comments:
     enabled: no
     engine: disqus
@@ -41,8 +41,8 @@ params:
   social:
     - link: https://github.com/Farewellznm
       name: github
-    - link: https://www.linkedin.com/company/github/
-      name: linkedin
+    #- link: https://www.linkedin.com/company/github/
+    #  name: linkedin
     - link: huishengliu06@gmail.com
       name: email
   tagsOverview: yes
