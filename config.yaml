@@ -29,7 +29,8 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 没想到写什么介绍啊
+  description: 近期有几个主要的目标：1）每天刷5题Rosalind题 2）做一个生信项目 3）写完毕业论文；当然还有更新一两篇博客。
+  
   googleAnalyticsAsync: yes
   mainSection: posts
   postsOnHomePage: 5
