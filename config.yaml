@@ -1,6 +1,6 @@
 baseURL: https://liuhuisheng.com/
 languageCode: UTF-8
-title: 造房子的怪哥哥
+title: Huisheng Liu
 theme: hugo-theme-cactus
 copyright: LHS
 disqusShortname: LHS
@@ -29,7 +29,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 近期有几个主要的目标：1）每天刷5题Rosalind题 2）做一个生信项目 3）写完毕业论文；当然还有更新一两篇博客。
+  description: 虽然我们只能看到前方很短的距离，但是已经看到有很多的事情要做了。
   
   googleAnalyticsAsync: yes
   mainSection: posts
