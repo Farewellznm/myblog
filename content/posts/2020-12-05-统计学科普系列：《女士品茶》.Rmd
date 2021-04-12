@@ -6,6 +6,7 @@ category: 统计
 tags: 
 - 统计
 output: html_document
+draft: true
 ---
 
 第一章：品茶的女士

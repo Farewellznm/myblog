@@ -1,0 +1,26 @@
+---
+title: "关于我"
+author: "LHS"
+date: "1994-11-02"
+category: 杂记
+tags: 
+- 杂记
+output: html_document
+draft: true
+---
+
+
+擅长芯片分析、转录组、单细胞转录组；机器学习；因果推断。
+
+通过这个 blog 更新一些原创性的东西。
+
+个人邮箱：huishengliu06@gmail.com
+
+
+# 访问统计
+
+<a href="https://clustrmaps.com/site/1bh84"  title="Visit tracker">
+<img src="//www.clustrmaps.com/map_v2.png?d=6OdlYrS-YndDpRR45OCirySfN9jJkicjGzAmZfeOzC0&cl=ffffff" width = "300" height = "500" /></a>
+
+
+

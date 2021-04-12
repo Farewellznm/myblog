@@ -6,6 +6,7 @@ category: Bioinfo
 tags: 
 - Bioinfo
 output: html_document
+draft: true
 ---
 
 复现一下赵博发表的 CRC 表达芯片数据挖掘的文章；
