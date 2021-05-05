@@ -1,5 +1,5 @@
 ---
-title: "adjust P 到底是如何矫正的？"
+title: "假设检验与P是如何矫正的？"
 author: "LHS"
 date: "2021-03-27"
 category: Bioinfo
@@ -13,21 +13,31 @@ output: html_document
 
 <div id="假设检验" class="section level1">
 <h1>假设检验</h1>
+<blockquote>
+<p>假设检验的基本思想是小概率反证法思想。小概率事件是指小概率事件（P&lt;0.01|0.05)在一次实验中基本不会发生。反证法的思想是先提出假设（检验假设<span class="math inline">\(H_0\)</span>),再用适当的方法确认假设成立的可能性大小，如果可能性小，则认为假设不成立；若可能性大，则没有充分的证据说明假设不成立。</p>
+</blockquote>
 <p>假设检验的步骤主要有 1）提出原假设，根据以往经验提出的默认假设 2）显著性水平的确定 3）证据收集，计算检验统计量 4）检验。假设检验最后结果如下表所示：</p>
 <p><img src="https://user-images.githubusercontent.com/38640955/117126549-77846b80-adcd-11eb-9b30-15425b32bc18.png" /></p>
 <p>金标准代表客观正确的事实；决策代表检验者得出的结论。</p>
+<p>如表所示：<strong>假阳性，第一类错误α，拒绝了实际上成立的H0，为“弃真”错误；假阴性，第二类错误β，接受了实际上不成立的H0，为“纳伪”错误。</strong></p>
 </div>
 <div id="假阳性和假阴性" class="section level1">
 <h1>假阳性和假阴性</h1>
 <p>假阴性和假阳性是针对于<code>筛查方法</code>产生的结果来说的。假设检验中，原假设H0一般为阴性结果，备择假设一般为阳性结果。</p>
 <p><code>假阳性</code>意思为，看起来显著但是实际上是阴性的结果，在实验中如果选择了假阳性的结果会导致后面的实验失败。</p>
-<p><code>假阴性</code>意思为，看起来是不显著但是实际上是阳性的结果，在实验中如果假阴性检出率过大，会影响新的独特的实验结果，如在差异分析中会掩盖那些真正有差异的基因。</p>
-<p>实际上，在生物学实验中，对假阳性的容忍程度一般低于假阴性，即尽量保守的减少阴性的结果的产生而不在意新的结果的检出。</p>
-<p>如表所示：<strong>假阳性，第一类错误α，拒绝了实际上成立的H0，为“弃真”错误；假阴性，第二类错误β，接受了实际上不成立的H0，为“纳伪”错误。</strong></p>
+<p><code>假阴性</code>意思为，看起来是不显著但是实际上是阳性的结果，在实验中如果假阴性检出率过大，会影响新的独特的实验结果，以及对表达差异不大的基因会漏样，进而掩盖那些真正有差异的基因。</p>
+<p>实际上，<span class="math inline">\(\alpha\)</span>和<span class="math inline">\(\beta\)</span>之间是互斥的，我能可以直观的从标准想像出：当<span class="math inline">\(\alpha\)</span>显著水平趋于零时，则决策中完全的消除了阳性结果，决策为H0，此时存在很多假阴性结果（<span class="math inline">\(\beta\)</span>）；反而<span class="math inline">\(\beta\)</span>趋于零时，做出的结果为HA，则其中存在很多假阳性结果（<span class="math inline">\(\alpha\)</span>）。在生物学实验中，对假阳性的容忍程度一般低于假阴性，即尽量保守的减少阴性的结果的产生而不在意新的结果的检出，这是一种保守的做法。</p>
 </div>
-<div id="检验效能和检验的势" class="section level1">
-<h1>检验效能和检验的势</h1>
-<p><code>检验的势</code>(power of the test)定义为在原假设是错误的情况下正确拒绝原假设的概率。检验的势等于1减去犯第二类错误的概率：1-β；</p>
+<div id="检验的势" class="section level1">
+<h1>检验的势</h1>
+<p>当得出P&gt;0.05时，一方面认为没有证据拒绝H0；另一方面也应该注意是否由于样本数量小，检验功效不够大导致的不能检出阳性结果HA。</p>
+<p><code>检验的势</code>(power of the test)定义为在原假设是错误的情况下正确拒绝原假设的概率。检验的势等于1减去犯第二类错误的概率：1-β；<strong>当两个总体参数的确存在差异时，所使用的统计检验能够发现这种差异的概率。</strong> 1-β最好大于80%。</p>
+<p>可通过如下公式计算β：</p>
+<p><span class="math display">\[
+Z_\beta = \frac{\sqrt{n}\delta}{\sigma}-Z_\alpha
+\]</span>
+其中 n为样本量；<span class="math inline">\(\delta\)</span>偏差；<span class="math inline">\(\sigma\)</span>总体标准差；<span class="math inline">\(Z_\alpha\)</span>:标准正态分布临界值，单侧检验取单侧，双侧取双侧;<span class="math inline">\(Z_\beta\)</span>:标准正态分布上侧尾部<span class="math inline">\(\beta\)</span>临界值。</p>
+<p>通过计算<span class="math inline">\(Z_\beta\)</span>反查正态分布获得<span class="math inline">\(\beta\)</span>，进而获得检验的势<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
 </div>
 <div id="p值的矫正方法" class="section level1">
 <h1>P值的矫正方法</h1>
@@ -39,5 +49,10 @@ output: html_document
 <div id="r中矫正p值获得q值" class="section level1">
 <h1>R中矫正P值获得q值</h1>
 <p>Ref:</p>
-<p>[]:<a href="https://blog.csdn.net/huangguohui_123/article/details/103781521">检验的势</a></p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://blog.csdn.net/huangguohui_123/article/details/103781521">检验的势</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
