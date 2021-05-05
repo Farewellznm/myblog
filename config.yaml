@@ -26,10 +26,11 @@ markup:
 params:
   colortheme: classic
   comments:
-    enabled: no
+    enabled: yes
     engine: disqus
   dateFormat: '2006-01-02'
   description: 虽然我们只能看到前方很短的距离，但是已经看到有很多的事情要做了。
+  mathjax: yes
   
   googleAnalyticsAsync: yes
   mainSection: posts
@@ -47,3 +48,7 @@ params:
     - link: huishengliu06@gmail.com
       name: email
   tagsOverview: yes
+  enableEmoji: True
+  
+  
+  
