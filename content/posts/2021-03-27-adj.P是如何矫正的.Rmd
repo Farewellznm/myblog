@@ -78,6 +78,7 @@ qobj <- qvalue(pvalue)
 qvalue <- qobj$qvalues
 summary(qobj)
 hist(qobj)
+
 ```
 π0:the proportion of true null hypotheses π0,
 
