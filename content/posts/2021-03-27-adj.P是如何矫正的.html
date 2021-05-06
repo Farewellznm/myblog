@@ -2,9 +2,9 @@
 title: "假设检验与P是如何矫正的？"
 author: "LHS"
 date: "2021-03-27"
-category: Bioinfo
+category: 统计
 tags: 
-- Bioinfo
+- 统计
 output: html_document
 ---
 
@@ -26,7 +26,7 @@ output: html_document
 <p>假阴性和假阳性是针对于<code>筛查方法</code>产生的结果来说的。假设检验中，原假设H0一般为阴性结果，备择假设一般为阳性结果。</p>
 <p><code>假阳性</code>意思为，看起来显著但是实际上是阴性的结果，在实验中如果选择了假阳性的结果会导致后面的实验失败。</p>
 <p><code>假阴性</code>意思为，看起来是不显著但是实际上是阳性的结果，在实验中如果假阴性检出率过大，会影响新的独特的实验结果，以及对表达差异不大的基因会漏样，进而掩盖那些真正有差异的基因。</p>
-<p>实际上，<span class="math inline">\(\alpha\)</span>和<span class="math inline">\(\beta\)</span>之间是互斥的，我能可以直观的从标准想像出：当<span class="math inline">\(\alpha\)</span>显著水平趋于零时，则决策中完全的消除了阳性结果，决策为H0，此时存在很多假阴性结果（<span class="math inline">\(\beta\)</span>）；反而<span class="math inline">\(\beta\)</span>趋于零时，做出的结果为HA，则其中存在很多假阳性结果（<span class="math inline">\(\alpha\)</span>）。在生物学实验中，对假阳性的容忍程度一般低于假阴性，即尽量保守的减少阴性的结果的产生而不在意新的结果的检出，这是一种保守的做法。</p>
+<p>实际上，<span class="math inline">\(\alpha\)</span>和<span class="math inline">\(\beta\)</span>之间是互斥的，我能可以直观的从标准想像出：当<span class="math inline">\(\alpha\)</span>显著水平趋于零时，则决策中完全的消除了阳性结果，决策为H0，此时存在很多假阴性结果（<span class="math inline">\(\beta\)</span>）；反之<span class="math inline">\(\beta\)</span>趋于零时，做出的结果为HA，则其中存在很多假阳性结果（<span class="math inline">\(\alpha\)</span>）。在生物学实验中，对假阳性的容忍程度一般低于假阴性，即尽量保守的减少阴性的结果的产生而不在意新的结果的检出，这是一种保守的做法。</p>
 </div>
 <div id="检验的势" class="section level1">
 <h1>检验的势</h1>
@@ -37,14 +37,14 @@ output: html_document
 Z_\beta = \frac{\sqrt{n}\delta}{\sigma}-Z_\alpha
 \]</span>
 其中 n为样本量；<span class="math inline">\(\delta\)</span>偏差；<span class="math inline">\(\sigma\)</span>总体标准差；<span class="math inline">\(Z_\alpha\)</span>:标准正态分布临界值，单侧检验取单侧，双侧取双侧;<span class="math inline">\(Z_\beta\)</span>:标准正态分布上侧尾部<span class="math inline">\(\beta\)</span>临界值。</p>
-<p>通过计算<span class="math inline">\(Z_\beta\)</span>反查正态分布表获得<span class="math inline">\(\beta\)</span>，进而获得检验的势<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+<p>通过计算<span class="math inline">\(Z_\beta\)</span>反查正态分布表获得<span class="math inline">\(\beta\)</span>，进而获得检验的势，一个具体的例子可从此<a href="https://blog.csdn.net/huangguohui_123/article/details/103781521">链接</a>找到<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
 </div>
 <div id="p值的矫正方法" class="section level1">
 <h1>P值的矫正方法</h1>
 <p>差异基因分析需要进行多重假设检验。在多重假设检验中，尽管假阳性阈值控制为p = 0.05已经很低了，但是由于次数很多，其总的检出数目也会很大（5%*20000=1000）。</p>
 <div id="严格的bonferroni校正" class="section level2">
 <h2>严格的Bonferroni校正</h2>
-<p>直观的想法是设定一个及其严格的阈值，排除所有假阳性。Bonferroni校正将阈值限定为<span class="math inline">\(\alpha(1/n)\)</span>,每次检验的阈值为5%/20000 = 0.0000025;因此20000次检验中，只有20000*0.0000025 =0.5次假阳性，不到1次。</p>
+<p>直观的想法是设定一个及其严格的阈值，排除所有假阳性。Bonferroni校正将阈值限定为<span class="math inline">\(\alpha(1/n)\)</span>,每次检验的阈值为5%/20000 = 0.0000025;因此20000次检验中，只有20000*0.0000025 =0.5次假阳性，不到1次。这样未免矫枉过正，会遗漏很多区别不大但却是阳性的结果。</p>
 </div>
 <div id="fdr计算" class="section level2">
 <h2>FDR计算</h2>
