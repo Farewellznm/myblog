@@ -16,7 +16,7 @@ output: html_document
 <blockquote>
 <p>假设检验的基本思想是小概率反证法思想。小概率事件是指小概率事件（P&lt;0.01|0.05)在一次实验中基本不会发生。反证法的思想是先提出假设（检验假设<span class="math inline">\(H_0\)</span>),再用适当的方法确认假设成立的可能性大小，如果可能性小，则认为假设不成立；若可能性大，则没有充分的证据说明假设不成立。</p>
 </blockquote>
-<p>假设检验的步骤主要有 1）提出原假设，根据以往经验提出的默认假设 2）显著性水平的确定 3）证据收集，计算检验统计量 4）检验。假设检验最后结果如下表所示：</p>
+<p>假设检验的步骤主要有 1）提出原假设，根据以往经验提出的默认假设 2）显著性水平的确定 3）证据收集，计算检验统计量 4）检验<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。假设检验最后结果如下表所示：</p>
 <p><img src="https://user-images.githubusercontent.com/38640955/117126549-77846b80-adcd-11eb-9b30-15425b32bc18.png" /></p>
 <p>金标准代表客观正确的事实；决策代表检验者得出的结论。</p>
 <p>如表所示：<strong>假阳性，第一类错误α，拒绝了实际上成立的H0，为“弃真”错误；假阴性，第二类错误β，接受了实际上不成立的H0，为“纳伪”错误。</strong></p>
@@ -37,22 +37,59 @@ output: html_document
 Z_\beta = \frac{\sqrt{n}\delta}{\sigma}-Z_\alpha
 \]</span>
 其中 n为样本量；<span class="math inline">\(\delta\)</span>偏差；<span class="math inline">\(\sigma\)</span>总体标准差；<span class="math inline">\(Z_\alpha\)</span>:标准正态分布临界值，单侧检验取单侧，双侧取双侧;<span class="math inline">\(Z_\beta\)</span>:标准正态分布上侧尾部<span class="math inline">\(\beta\)</span>临界值。</p>
-<p>通过计算<span class="math inline">\(Z_\beta\)</span>反查正态分布获得<span class="math inline">\(\beta\)</span>，进而获得检验的势<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+<p>通过计算<span class="math inline">\(Z_\beta\)</span>反查正态分布表获得<span class="math inline">\(\beta\)</span>，进而获得检验的势<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
 </div>
 <div id="p值的矫正方法" class="section level1">
 <h1>P值的矫正方法</h1>
-<p>多重假设检验中，尽管假阳性阈值控制为p = 0.05已经很低了，但是由于次数很多，其总的检出数目也会很大（5%*20000=1000）。</p>
+<p>差异基因分析需要进行多重假设检验。在多重假设检验中，尽管假阳性阈值控制为p = 0.05已经很低了，但是由于次数很多，其总的检出数目也会很大（5%*20000=1000）。</p>
+<div id="严格的bonferroni校正" class="section level2">
+<h2>严格的Bonferroni校正</h2>
+<p>直观的想法是设定一个及其严格的阈值，排除所有假阳性。Bonferroni校正将阈值限定为<span class="math inline">\(\alpha(1/n)\)</span>,每次检验的阈值为5%/20000 = 0.0000025;因此20000次检验中，只有20000*0.0000025 =0.5次假阳性，不到1次。</p>
 </div>
-<div id="fdr计算" class="section level1">
-<h1>FDR计算</h1>
+<div id="fdr计算" class="section level2">
+<h2>FDR计算</h2>
+<p><code>FDR</code>错误发现率，假阳性/真阳性+假阳性，让其小于0.05，这样允许存在假阳性的结果，是一种折中的方法；例如20000基因，其中1000个是差异基因，其中假阳性基因数目小于50个，可以接受。</p>
+<p>有很多近似估算FDR的计算方法，其中常用的是BH（Benjaminiand Hochberg）法<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>，主要步骤如下：</p>
+<p>首先给定一系列P值：p = [0.054，0.032，0.044，0.012，0.002,0.027，0.036]；</p>
+<p>然后从小到大排序：<span class="math inline">\(p_i\)</span> = [0.002,0.012,0.027,0.032,0.036,0.044,0.054]</p>
+<p>计算q值：<span class="math inline">\(q= p\frac{n}{i}\)</span>，n为检验次数，i为排序位置，结果为：q = [0.014,0.042,0.063,0.056,0.050,0.051,0.054]取q阈值为0.05,因此这里前两个（0.002，0.012）为矫正后显著的结果。
+# 使用 qvalue 计算q值
+R中的 qvalue<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> 可以对 p值进行矫正。</p>
+<pre class="r"><code>library(qvalue)
+#hedenfalk  P-values and test-statistics from the Hedenfalk et al. (2001) gene expression dataset
+data(&quot;hedenfalk&quot;)
+pvalue &lt;- hedenfalk$p
+qobj &lt;- qvalue(pvalue)
+# q值
+qvalue &lt;- qobj$qvalues
+summary(qobj)</code></pre>
+<pre><code>## 
+## Call:
+## qvalue(p = pvalue)
+## 
+## pi0: 0.669926    
+## 
+## Cumulative number of significant calls:
+## 
+##           &lt;1e-04 &lt;0.001 &lt;0.01 &lt;0.025 &lt;0.05 &lt;0.1   &lt;1
+## p-value       15     76   265    424   605  868 3170
+## q-value        0      0     1     73   162  319 3170
+## local FDR      0      0     3     30    85  167 2241</code></pre>
+<pre class="r"><code>hist(qobj)</code></pre>
+<p><img src="/posts/2021-03-27-adj.P是如何矫正的_files/figure-html/R for FDR-1.png" width="672" />
+π0:the proportion of true null hypotheses π0,</p>
+<p>在生物样本分析中，例如一个转录组分析，一个默认假设是：通常差异基因只有总体基因的10%以下，大部分都是非差异的，服从均匀分布；差异的部分远小于非差异，其中p&lt;0.05时，大部分（仅有0.17为阳性）为无差异的结果（如图所示），所以BH的目的提高筛选阈值，尽可能保留真阳性。</p>
 </div>
-<div id="r中矫正p值获得q值" class="section level1">
-<h1>R中矫正P值获得q值</h1>
-<p>Ref:</p>
+</div>
+<div id="ref" class="section level1">
+<h1>Ref</h1>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="https://blog.csdn.net/huangguohui_123/article/details/103781521">检验的势</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>概率论与数理统计. 作者：— 茆诗松, 周纪芗编著. 索书号：O21-43/4434. ISBN： 978-7-5037-5332-9. 出版社：中国统计出版社2007<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><a href="https://blog.csdn.net/huangguohui_123/article/details/103781521">检验的势</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><a href="http://www.math.tau.ac.il/~ybenja/MyPapers/benjamini_hochberg1995.pdf">BH论文</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Storey JD, Bass AJ, Dabney A, Robinson D (2020). qvalue: Q-value estimation for false discovery rate control. R package version 2.22.0, <a href="http://github.com/jdstorey/qvalue" class="uri">http://github.com/jdstorey/qvalue</a>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

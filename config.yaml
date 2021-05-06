@@ -26,7 +26,7 @@ markup:
 params:
   colortheme: classic
   comments:
-    enabled: yes
+    enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
   description: 虽然我们只能看到前方很短的距离，但是已经看到有很多的事情要做了。
