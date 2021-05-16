@@ -1,0 +1,79 @@
+---
+title: "TCGA数据下载：TCGAbiolinks"
+author: "LHS"
+date: "2021-05-16"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>为了构建可重复性数据分析流程，使用可整合的现有工具进行数据下载十分重要。
+现有的下载TCGA data的工具可以用TCGA自带的下载软件GDC client和GDC Data Transfer Tool进行下载；或者使用<code>TCGAbiolinks</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>，后者更有利于可复现流程的构建。</p>
+<div id="基因表达数据的下载建议下载counts数据" class="section level1">
+<h1>1.基因表达数据的下载，建议下载counts数据</h1>
+<pre class="r"><code>#######################################
+#数据下载
+#从TCGA数据库中下载满足如下条件的基因表达数据
+#TCGA-PAAD RNA-Seq HTSeq - Counts open 共有177case，182个样本
+if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE))
+  install.packages(&quot;BiocManager&quot;)
+BiocManager::install(&quot;TCGAbiolinks&quot;)
+library(TCGAbiolinks)
+library(SummarizedExperiment)
+library(tidyverse)
+library(DT)
+query.exp.hg38 &lt;- GDCquery(project = &quot;TCGA-PAAD&quot;, 
+                           data.category = &quot;Transcriptome Profiling&quot;, 
+                           data.type = &quot;Gene Expression Quantification&quot;, 
+                           workflow.type = &quot;HTSeq - Counts&quot;)
+GDCdownload(query.exp.hg38)
+expdat &lt;- GDCprepare(query = query.exp.hg38,
+                     save = TRUE, 
+                     save.filename = &quot;exp.rda&quot;)
+PAADMatrix &lt;- assay(expdat,&quot;HTSeq - Counts&quot;)
+#样本质控
+#Array Array Intensity correlation (AAIC);相关系数低的可作为离群样本
+PAAD_CorOutliers &lt;- TCGAanalyze_Preprocessing(expdat)
+PAADMatrix &lt;- PAAD_CorOutliers
+write.csv(PAADMatrix,&quot;exp_matrix.csv&quot;)</code></pre>
+<div class="figure">
+<img src="../pic/PreprocessingOutput.png" alt="" />
+<p class="caption">样本质控AAIC</p>
+</div>
+<p>AAIC 代表样本与样本之间的相关性，相关性越低，说明样本越离群，将不纳入下游分析。因此，可以从热图和box plot中看出，相关性都大于0.8说明质量合格。
+# 2.临床数据的下载</p>
+<pre class="r"><code># BCR Biotab 是根据XML文件提取的
+query &lt;- GDCquery(project = &quot;TCGA-PAAD&quot;, 
+                  data.category = &quot;Clinical&quot;,
+                  data.type = &quot;Clinical Supplement&quot;, 
+                  data.format = &quot;BCR Biotab&quot;)
+GDCdownload(query)
+clinical.BCRtab.all &lt;- GDCprepare(query)
+names(clinical.BCRtab.all)
+# 这里要用到tidyverse和DT包，对数据进行初步检索
+clinical.BCRtab.all$clinical_patient_paad %&gt;% 
+  head  %&gt;% 
+  DT::datatable(options = list(scrollX = TRUE, keys = TRUE))
+# 也可以检索XML文件
+query &lt;- GDCquery(project = &quot;TCGA-PAAD&quot;, 
+                  data.category = &quot;Clinical&quot;, 
+                  file.type = &quot;xml&quot;)
+GDCdownload(query)
+clinical &lt;- GDCprepare_clinic(query, clinical.info = &quot;patient&quot;)
+write.csv(clinical,&quot;clinical.csv&quot;)
+#########
+#数据下载完成</code></pre>
+</div>
+<div id="ref" class="section level1">
+<h1>Ref：</h1>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Colaprico, Antonio, et al. “TCGAbiolinks: an R/Bioconductor package for integrative analysis of TCGA data.” Nucleic acids research 44.8 (2015): e71-e71.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
