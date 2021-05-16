@@ -1,0 +1,43 @@
+---
+title: "limma和edgeR:从原理到实践"
+author: "LHS"
+date: "2021-05-15"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+draft: true
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>基因差异表达分析是用于鉴定不同条件（癌组织和癌旁组织；药物治疗）</p>
+<div id="广义线性模型" class="section level1">
+<h1>广义线性模型</h1>
+<p>表达量模型的分布问题，为什么泊松分布不行？负二项分布行？</p>
+<p>负二项分布方差为：
+<span class="math display">\[
+\sigma^2 = \mu + \alpha \mu^2
+\]</span></p>
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/38640955/115028066-0866d600-9ef7-11eb-8cf0-b5ec6cb231a2.png" alt="" />
+<p class="caption">limma原理</p>
+</div>
+<p>limma是基于线性拟合的差异分析方法；单独对每一个基因的表达量进行多因素拟合。</p>
+<p>可以用矩阵表示为：</p>
+<p><span class="math display">\[Y = AX \]</span></p>
+<p>所以主要需要对两个参数进行估计</p>
+</div>
+<div id="归一化" class="section level1">
+<h1>归一化</h1>
+</div>
+<div id="模型选择" class="section level1">
+<h1>模型选择</h1>
+</div>
+<div id="r-语言实现与具体参数" class="section level1">
+<h1>R 语言实现与具体参数</h1>
+</div>
+<div id="ref" class="section level1">
+<h1>Ref</h1>
+</div>
