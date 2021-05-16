@@ -1,0 +1,126 @@
+---
+title: "单细胞流程:Lineage Inference"
+author: "LHS"
+date: "2021-06-20"
+category: 单细胞
+tags: 
+- 单细胞
+output: html_document
+---
+
+<script src="2021-06-20-Lineage Inference_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="单细胞谱系推断-lineage-inference" class="section level1">
+<h1>单细胞谱系推断 Lineage Inference</h1>
+<ol style="list-style-type: decimal">
+<li>介绍与原理</li>
+</ol>
+<p>单细胞流程重要的一步是谱系构建（lineage reconstruction ）和伪时序构建（pseudotime inference）。slingshot的目标是利用细胞集群来发现全局结构，并将这种结构转化为由一维变量表示的平滑线段，称为 “伪时间”。</p>
+<pre class="r"><code>library(devtools)
+devtools::install_github(&quot;SONGDONGYUAN1994/PseudotimeDE&quot;)
+#
+library(PseudotimeDE)
+library(SingleCellExperiment)</code></pre>
+<pre class="r"><code>means &lt;- rbind(
+    # non-DE genes
+    matrix(rep(rep(c(0.1,0.5,1,2,3), each = 300),100),
+        ncol = 300, byrow = TRUE),
+    # early deactivation
+    matrix(rep(exp(atan( ((300:1)-200)/50 )),50), ncol = 300, byrow = TRUE),
+    # late deactivation
+    matrix(rep(exp(atan( ((300:1)-100)/50 )),50), ncol = 300, byrow = TRUE),
+    # early activation
+    matrix(rep(exp(atan( ((1:300)-100)/50 )),50), ncol = 300, byrow = TRUE),
+    # late activation
+    matrix(rep(exp(atan( ((1:300)-200)/50 )),50), ncol = 300, byrow = TRUE),
+    # transient
+    matrix(rep(exp(atan( c((1:100)/33, rep(3,100), (100:1)/33) )),50), 
+        ncol = 300, byrow = TRUE)
+)
+counts &lt;- apply(means,2,function(cell_means){
+    total &lt;- rnbinom(1, mu = 7500, size = 4)
+    rmultinom(1, total, cell_means)
+})
+rownames(counts) &lt;- paste0(&#39;G&#39;,1:750)
+colnames(counts) &lt;- paste0(&#39;c&#39;,1:300)
+sim &lt;- SingleCellExperiment(assays = List(counts = counts))</code></pre>
+<pre class="r"><code>library(slingshot, quietly = FALSE)
+data(&quot;slingshotExample&quot;)
+rd &lt;- slingshotExample$rd
+cl &lt;- slingshotExample$cl
+
+dim(rd) # data representing cells in a reduced dimensional space</code></pre>
+<pre><code>## [1] 140   2</code></pre>
+<pre class="r"><code># filter genes down to potential cell-type markers
+# at least M (15) reads in at least N (15) cells
+geneFilter &lt;- apply(assays(sim)$counts,1,function(x){
+    sum(x &gt;= 3) &gt;= 10
+})
+sim &lt;- sim[geneFilter, ]</code></pre>
+<pre class="r"><code>FQnorm &lt;- function(counts){
+    rk &lt;- apply(counts,2,rank,ties.method=&#39;min&#39;)
+    counts.sort &lt;- apply(counts,2,sort)
+    refdist &lt;- apply(counts.sort,1,median)
+    norm &lt;- apply(rk,2,function(r){ refdist[r] })
+    rownames(norm) &lt;- rownames(counts)
+    return(norm)
+}
+assays(sim)$norm &lt;- FQnorm(assays(sim)$counts)</code></pre>
+<pre class="r"><code>pca &lt;- prcomp(t(log1p(assays(sim)$norm)), scale. = FALSE)
+rd1 &lt;- pca$x[,1:2]
+plot(rd1, col = rgb(0,0,0,.5), pch=16, asp = 1)</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/pca-1.png" width="672" /></p>
+<p>UMAP（统一流形近似和投影）是一种新颖的流形学习技术，用于降维。UMAP由基于黎曼几何和代数拓扑的理论框架构建而成。结果是适用于现实世界数据的实用的可伸缩算法。UMAP算法在可视化质量上与t-SNE竞争，并且可以说以优异的运行时性能保留了更多的全局结构。此外，UMAP对嵌入维数没有计算限制，使其成为用于机器学习的通用降维技术是可行的.</p>
+<pre class="r"><code>library(uwot)
+
+rd2 &lt;- umap(t(log1p(assays(sim)$norm)))
+colnames(rd2) &lt;- c(&#39;UMAP1&#39;, &#39;UMAP2&#39;)
+plot(rd2)</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>reducedDims(sim) &lt;- SimpleList(PCA = rd1, UMAP = rd2)</code></pre>
+<pre class="r"><code>library(mclust, quietly = TRUE)</code></pre>
+<pre><code>## Package &#39;mclust&#39; version 5.4.7
+## Type &#39;citation(&quot;mclust&quot;)&#39; for citing this R package in publications.</code></pre>
+<pre class="r"><code>cl1 &lt;- Mclust(rd1)$classification
+colData(sim)$GMM &lt;- cl1
+library(RColorBrewer)
+plot(rd1, col = brewer.pal(9,&quot;Set1&quot;)[cl1], pch=16, asp = 1)</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code># kmeans 聚类数目的不同会影响拟时序的精度，太少不能反应真实谱系发育过程；太多会产生过多假阳性分支
+cl2 &lt;- kmeans(rd1, centers = 4)$cluster
+colData(sim)$kmeans &lt;- cl2
+
+plot(rd1, col = brewer.pal(9,&quot;Set1&quot;)[cl2], pch=16, asp = 1)</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<p>Slingshot通过两个函数<code>getLineages</code> and <code>getCurves</code>来实现 1）谱系构建cluster-based minimum spanning tree (MST) ；2）曲线拟合;这一步可以结合之前注释的细胞标签cluster labels</p>
+<pre class="r"><code>sim &lt;- slingshot(sim, clusterLabels = &#39;GMM&#39;, reducedDim = &#39;PCA&#39;)</code></pre>
+<pre><code>## Using full covariance matrix</code></pre>
+<pre class="r"><code>summary(sim$slingPseudotime_1)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   8.426  21.485  21.439  34.130  42.682</code></pre>
+<pre class="r"><code>colors &lt;- colorRampPalette(brewer.pal(11,&#39;Spectral&#39;)[-6])(100)
+plotcol &lt;- colors[cut(sim$slingPseudotime_1, breaks=100)]
+plot(reducedDims(sim)$PCA, col = plotcol, pch=16, asp = 1)
+lines(SlingshotDataSet(sim), lwd=2, col=&#39;black&#39;)</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/slingshot-1.png" width="672" /></p>
+<pre class="r"><code>plot(reducedDims(sim)$PCA, col = brewer.pal(9,&#39;Set1&#39;)[sim$GMM], pch=16, asp = 1)
+lines(SlingshotDataSet(sim), lwd=2, type = &#39;lineages&#39;, col = &#39;black&#39;)</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/slingshot-2.png" width="672" /></p>
+<pre class="r"><code>library(PseudotimeDE)
+library(tradeSeq)
+sim &lt;- fitGAM(sim)
+ATres &lt;- associationTest(sim)
+topgenes &lt;- rownames(ATres[order(ATres$pvalue), ])[1:250]
+pst.ord &lt;- order(sim$slingPseudotime_1, na.last = NA)
+heatdata &lt;- assays(sim)$counts[topgenes, pst.ord]
+heatclus &lt;- sim$GMM[pst.ord]
+
+heatmap(log1p(heatdata), Colv = NA,
+        ColSideColors = brewer.pal(9,&quot;Set1&quot;)[heatclus])</code></pre>
+<p><img src="/posts/2021-06-20-Lineage%20Inference_files/figure-html/DE-1.png" width="672" /></p>
+</div>
+<div id="ref" class="section level1">
+<h1>Ref</h1>
+<p>李婧翌老师报告的slides ：<a href="http://jsb.ucla.edu/selected-presentations" class="uri">http://jsb.ucla.edu/selected-presentations</a></p>
+</div>
