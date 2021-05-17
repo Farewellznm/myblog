@@ -44,6 +44,7 @@ write.csv(PAADMatrix,"exp_matrix.csv")
 ![样本质控AAIC](../pic/PreprocessingOutput.png)
 
 AAIC 代表样本与样本之间的相关性，相关性越低，说明样本越离群，将不纳入下游分析。因此，可以从热图和box plot中看出，相关性都大于0.8说明质量合格。
+
 # 2.临床数据的下载
 
 ```{r eval=FALSE}

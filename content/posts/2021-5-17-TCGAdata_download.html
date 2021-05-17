@@ -44,8 +44,10 @@ write.csv(PAADMatrix,&quot;exp_matrix.csv&quot;)</code></pre>
 <img src="../pic/PreprocessingOutput.png" alt="" />
 <p class="caption">样本质控AAIC</p>
 </div>
-<p>AAIC 代表样本与样本之间的相关性，相关性越低，说明样本越离群，将不纳入下游分析。因此，可以从热图和box plot中看出，相关性都大于0.8说明质量合格。
-# 2.临床数据的下载</p>
+<p>AAIC 代表样本与样本之间的相关性，相关性越低，说明样本越离群，将不纳入下游分析。因此，可以从热图和box plot中看出，相关性都大于0.8说明质量合格。</p>
+</div>
+<div id="临床数据的下载" class="section level1">
+<h1>2.临床数据的下载</h1>
 <pre class="r"><code># BCR Biotab 是根据XML文件提取的
 query &lt;- GDCquery(project = &quot;TCGA-PAAD&quot;, 
                   data.category = &quot;Clinical&quot;,
