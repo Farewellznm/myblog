@@ -29,7 +29,8 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 2021年6月，我来上海啦！/t 这些地方走在众人之前，它们已经有了自己的花冠女神。/t 而我的花冠女神。 
+  description: 2021年6月，我来上海啦！
+  这些地方走在众人之前，它们已经有了自己的花冠女神。 
   
   mathjax: yes
   
