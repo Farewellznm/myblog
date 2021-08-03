@@ -29,7 +29,12 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 虽然我们只能看到前方很短的距离，但是已经看到有很多的事情要做了。
+  description: 
+  2021年6月，我来上海啦！
+  这些地方走在众人之前，它们已经有了自己的花冠女神。
+  而我的花冠女神。
+  虽然我们只能看到前方很短的距离，但是已经看到有很多的事情要做了。 
+  
   mathjax: yes
   
   googleAnalyticsAsync: yes
