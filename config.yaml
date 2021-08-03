@@ -29,8 +29,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 2021年6月，我来上海啦！
-  这些地方走在众人之前，它们已经有了自己的花冠女神。 
+  description: 虽然我已年老苍苍，却漂泊在荒郊野岭。我一定要找到花冠女孩的踪迹，亲吻芳唇再将她的手儿执起；沿着阳光斑驳的草地，直到时间尽头，去采摘：月亮的银苹果，太阳的金苹果。
   
   mathjax: yes
   
