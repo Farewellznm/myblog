@@ -9,14 +9,14 @@ title: 关于我&友情链接
 
 个人邮箱：huishengliu06@gmail.com
 
-# 项目和相关的文章，[CV]()
+# 项目和相关的文章
 
 1.结直肠癌单细胞转录组数据挖掘
 
 2.
 
 3.
-
+在这儿可以找到我的简历（[**CV**]([CV](https://github.com/Farewellznm/myblog/blob/main/content/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%B7%A5%E7%A8%8B%E5%B8%88_%E5%88%98%E6%83%A0%E7%94%9F.pdf))）
 # 友情链接
 
 1、BBruceyuan
