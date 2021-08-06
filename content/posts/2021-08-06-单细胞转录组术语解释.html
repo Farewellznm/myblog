@@ -1,0 +1,27 @@
+---
+title: "10xGenomics scRNAseq 术语解释"
+author: "LHS"
+date: "2021-08-06"
+category: 单细胞
+tags: 
+- 单细胞
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>1.常用术语</p>
+<p>index标记样本、barcode标记细胞、UMI标记转录本</p>
+<p><code>index</code>:用于标记样本，也叫library barcode,最新的 cellranger6 更新了，文库信息改为sample.对应跑 cellranger aggr 表头也变了。</p>
+<p><code>barcode</code>：用于标记细胞，</p>
+<p><code>UMI</code>:Unique Molecular Identifier,用于标记转录本</p>
+<p>2.测多少数据量</p>
+<p>150X2X30k</p>
+<p>3.技术问题</p>
+<p>使用v3试剂建库，发现29bp出没有dT富集情况，和预想中的不一样。<br />
+<img src="https://user-images.githubusercontent.com/38640955/128474940-995d9f28-3a5b-4d76-8adc-68a6b8249a06.png" alt="单细胞文库异常" /></p>
+<p>平衡文库的作用：<br />
+平衡文库用于平衡由于富集产生的ATGC不均一。<br />
+Illumina 测序仪在收集信号时，并不是拍摄一张彩色照片一次完成的，而是分 A、C、G、T 4 个波长，分别拍摄 4张单色照片，然后通过软件处理把这 4 张图叠加成一张。这是一种权宜之计，目的是减少图片文件的大小，从而降低对于数据存贮空间的要求。但也有缺点，一旦某一张或几张照片的信号强度不够，或者没有信号，则图片的叠加就不能准确完成。碱基不平衡文库（即A、G、C、T 四种碱基的含量远远偏离 25%）在测序时会导致某些图片（波长）没有信号或者信号很弱，在碱基识别时准确性降低。常见的碱基不平衡文库有BS甲基化文库、<code>单细胞转录组文库</code>、PCR产物文库等，为了减少碱基不平衡对测序结果的影响，通常会混入一定比例的phix文库(详见文章）[1]。</p>
+<p>[^1] <a href="https://www.jianshu.com/p/87e53db86d89" class="uri">https://www.jianshu.com/p/87e53db86d89</a></p>
