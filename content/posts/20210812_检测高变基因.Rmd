@@ -1,0 +1,47 @@
+---
+title: "Seurat:Marker基因与差异基因"
+author: "LHS"
+date: "2021-08-12"
+category: 单细胞
+tags: 
+- 单细胞
+output: html_document
+---
+
+`Seurat`有很多针对`marker`基因的分析。例如,为了鉴定marker基因，使用`FindAllMarkers`函数，通过基因差异表达分析比较每一细胞类群和其他类群平均表达水平之间的差异情况。
+
+# 1.FindMarker
+
+首先载入必要的包和测试数据
+
+
+```{R eval=FALSE}
+library(Seurat)
+library(SeuratData)
+# devtools::install_github('satijalab/seurat-data')
+# InstallData("pbmc3k")
+pbmc <- LoadData("pbmc3k", type = "pbmc3k.final")
+pbmc3k.final@meta.data$seurat_clusters
+```
+
+输出的结果包括以下重要的几列：
+
+`pvalue`和`adj.pvalue`:未矫正和多重假设检验矫正（BH矫正）后的P值；
+
+`pct.1`和`pct.2`:The percentage of cells where the gene is detected in the cluster,pct.1 当前类 pct.2 其他类；
+
+`avg_logFC`:平均表达变化倍数，大于零表明基因在此类高表达
+
+# 2.Marker基因可视化
+
+Seurat 同时也自带marker基因可视化的函数``
+
+
+
+# 3.特定细胞亚群样本分组差异分析
+
+
+
+# Ref
+
+
