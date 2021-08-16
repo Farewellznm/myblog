@@ -6,6 +6,7 @@ category: 单细胞
 tags: 
 - 单细胞
 output: html_document
+draft: true
 ---
 
 `Seurat`有很多针对`marker`基因的分析。例如,为了鉴定marker基因，使用`FindAllMarkers`函数，通过基因差异表达分析比较每一细胞类群和其他类群平均表达水平之间的差异情况。
