@@ -1,0 +1,45 @@
+---
+title: "Linux(1):从集群拷贝大文件方法"
+author: "LHS"
+date: "2021-08-25"
+category: Linux
+tags: 
+  - Linux
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<blockquote>
+<p>感谢D哥教我学编程</p>
+</blockquote>
+<div id="下载命令" class="section level1">
+<h1>下载命令</h1>
+<p>从集群下载</p>
+<pre><code>scp remote_username@remote_ip:remote_folder  ./ 拷贝到当前目录  </code></pre>
+</div>
+<div id="免密登录" class="section level1">
+<h1>免密登录</h1>
+<p>scp免密码拷贝和ssh免密码登录（<a href="https://www.cnblogs.com/liuyihua1992/p/9602324.html" class="uri">https://www.cnblogs.com/liuyihua1992/p/9602324.html</a>）
+如果当前用户目录下没有.ssh 文件，原因是没有登录过root，不会记录密码信息</p>
+<pre><code>ssh localhost </code></pre>
+</div>
+<div id="断点续传" class="section level1">
+<h1>断点续传</h1>
+<p>–append 断点续传</p>
+<pre><code>rsync -P --rsh=ssh --append  sc03@10.12.17.2:dir  ./  </code></pre>
+</div>
+<div id="自动运行" class="section level1">
+<h1>自动运行</h1>
+<p>可以将命令的输出结果输出到标准输出设备，多用于周期性执行命令/定时执行命令；
+（<a href="https://www.cnblogs.com/peida/archive/2012/12/31/2840241.html" class="uri">https://www.cnblogs.com/peida/archive/2012/12/31/2840241.html</a>)</p>
+<pre><code>watch -n 20 command</code></pre>
+</div>
+<div id="数据校验" class="section level1">
+<h1>数据校验</h1>
+<p>空洞文件https://support.huaweicloud.com/intl/zh-cn/sms_faq/sms_faq_0039.html
+通过获取文件的 MD5/SHA1/SHA256 等校验值对比文件的完整性、一致性，可以用来判断文件是否重复、内容是否被修改过等，比较常用的哈希算法有 MD5 与 SHA1（<a href="https://cloud.tencent.com/developer/article/1642336" class="uri">https://cloud.tencent.com/developer/article/1642336</a>）</p>
+<pre><code>md5sum file &gt; md5
+sha256sum file &gt; sha256</code></pre>
+</div>
