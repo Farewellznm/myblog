@@ -2,13 +2,11 @@
 title: "The Song of Wandering Aengus"
 author: "LHS"
 date: "2021-08-03"
-category: 诗歌网子
+category: 随笔
 tags: 
-- 诗歌网子
+- 随笔
 output: html_document
 ---
-**The Song of Wandering Aengus**
-
 <font color=red>BY WILLIAM BUTLER YEATS </font>
 
 I went out to the hazel wood,  

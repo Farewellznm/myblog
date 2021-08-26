@@ -9,19 +9,18 @@ menu:
     - name: Home
       url: /
       weight: 1
-    - name: About
-      url: /about
-      weight: 2
     - name: Writings
       url: /posts
-      weight: 3
+      weight: 2
     - name: Topics
       url: /tags
-      weight: 4
+      weight: 3
     - name: Solitude
       url: /Solitude
+      weight: 4
+    - name: About
+      url: /about
       weight: 5
-
 markup:
   tableOfContents:
     endLevel: 4
@@ -50,7 +49,7 @@ params:
       name: github
     - link: huishengliu06@gmail.com
       name: email
-  tagsOverview: yes
+  tagsOverview: no
   enableEmoji: True
   
   

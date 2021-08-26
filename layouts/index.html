@@ -4,7 +4,7 @@
     {{ .Site.Params.description }}
   {{ end }}
   {{ if isset .Site.Params "social" }}
-      <p>Find me on
+      <p>很想和朋友交流：
       {{ $length := (len .Site.Params.social) }}
       {{ range $index, $elem := .Site.Params.social}}
       {{ if eq $elem.name "email" }}
@@ -27,7 +27,7 @@
         {{ if (lt (add $index 2) $length) }}
           {{- print " , " -}}
         {{ else if (lt (add $index 1) $length) }}
-          {{- print " and " -}}
+          {{- print " 或者 " -}}
         {{ else }}
           {{- print "." -}}
         {{ end }}
@@ -36,7 +36,7 @@
   {{ end }}
   </section>
 
-  <section id="writing">
+  <section id="Writings">
     <span class="h1"><a href="{{ .Site.Params.mainSection | absURL }}">Writings</a></span>
     {{ if (and (and (isset .Site.Params "tagsoverview") (eq .Site.Params.tagsOverview true)) (gt (len .Site.Taxonomies.tags) 0)) }}
     <span class="h2">Topics</span>
