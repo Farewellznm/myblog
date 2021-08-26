@@ -9,15 +9,19 @@ menu:
     - name: Home
       url: /
       weight: 1
+    - name: About
+      url: /about
+      weight: 2
     - name: Writings
       url: /posts
-      weight: 2
-    - name: Tags
-      url: /tags
       weight: 3
-    - name: Friendlinks
-      url: /about
+    - name: Topics
+      url: /tags
       weight: 4
+    - name: Solitude
+      url: /Solitude
+      weight: 5
+
 markup:
   tableOfContents:
     endLevel: 4
@@ -34,18 +38,16 @@ params:
   mathjax: yes
   
   googleAnalyticsAsync: yes
-  mainSection: posts
+  mainSection: posts 
   postsOnHomePage: 5
   projectsUrl: https://github.com/gohugoio
   rss: yes
-  show_updated: no
+  show_updated: yes
   showAllPostsOnHomePage: yes
-  showProjectsList: no
+  showProjectsList: yes
   social:
     - link: https://github.com/Farewellznm
       name: github
-    #- link: https://www.linkedin.com/company/github/
-    #  name: linkedin
     - link: huishengliu06@gmail.com
       name: email
   tagsOverview: yes
