@@ -10,4 +10,4 @@ output: html_document
 
 石榴
 
-![石榴](./pic/1.png)
+![石榴](pic/1.png)
