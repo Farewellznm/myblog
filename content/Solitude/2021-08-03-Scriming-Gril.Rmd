@@ -1,0 +1,53 @@
+---
+title: "The Song of Wandering Aengus"
+author: "LHS"
+date: "2021-08-03"
+category: 诗歌网子
+tags: 
+- 诗歌网子
+output: html_document
+---
+**The Song of Wandering Aengus**
+
+<font color=red>BY WILLIAM BUTLER YEATS </font>
+
+I went out to the hazel wood,  
+Because a fire was in my head,  
+And cut and peeled a hazel wand,  
+And hooked a berry to a thread;  
+And when white moths were on the wing,  
+And moth-like stars were flickering out,  
+I dropped the berry in a stream  
+And caught a little silver trout.  
+
+When I had laid it on the floor,  
+I went to blow the fire a-flame,  
+But something rustled on the floor,  
+And someone called me by my name:  
+<font color=red>It had become a **glimmering girl**,   
+With **apple blossom** in her hair.</font>  
+Who called me by my name and ran,  
+And faded through the brightening air.  
+
+Though I am old with wandering,  
+Through hollow lands and hilly lands,  
+I will find out where she has gone,  
+And kiss her lips and take her hands;  
+And walk among long dappled grass,  
+And pluck till time and times are done,  
+The silver apples of the moon,  
+The golden apples of the sun.  
+
+
+我去榛树林，只因为心中的`一团火`。我砍树条剥去皮，一线一钩挂浆果。白色的飞蛾扑翅飞，星星像飞蛾一样在闪烁。我把浆果投入小溪中，抓到了一只银色的小鳟鱼；  
+我把小鱼放地上，又过去把火吹亮；可地上有什么在沙沙作响，有人在我耳边叫我名字：小鱼变成了若隐若现的姑娘,头上戴着`苹果花冠`。她叫着我的名字跑开了，消失在曙光中；    
+虽然我已年老苍苍，却漂泊在荒郊野岭。我一定要找到花冠女孩的踪迹，亲吻芳唇再将她的手儿执起；沿着阳光斑驳的草地，直到时间尽头，去采摘：`月亮的银苹果`，`太阳的金苹果`。
+
+浪漫主义，神秘主义。
+
+这些地方已经走到了众人的前面，因为他们已经有了自己的花冠女神。
+
+这首诗歌[^1],前半部分恬淡而优美；后半部分忧伤而亘久。
+
+## Ref  
+[^1]:[翻唱](https://music.163.com/#/song?id=27753335&uct=r629%2B8z%2FWoZXJ15%2FUmrwHw%3D%3D&app_version=8.2.61)
