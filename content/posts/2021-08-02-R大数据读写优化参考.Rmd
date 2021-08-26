@@ -1,0 +1,109 @@
+---
+title: "R大数据读写优化参考"
+author: "LHS"
+date: "2021-08-02"
+category: R
+tags: 
+- R
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1.优化和读取数据
+
+R基础函数`read.csv`和类似的函数适合小数据集，由于其灵活性，使用的很多；但是对于大数据集，这些函数使用起来耗时过多和耗内存过多。
+
+`readr`提供了很多R基础函数的补充，用‘_’代替‘.’用于常用文件的读取。
+
+1. read_delim：读取带分隔符的文件
+
+    - read_csv:普通的
+
+    - read_tsv:tab分隔的
+
+2. read_lines:按行读取
+
+3. read_file: 按string读入整个文件
+
+## 2.调整数据存储结构
+
+稀疏矩阵比密集矩阵使用更少的内存
+
+```{R echo=TRUE}
+# A large matrix 
+
+set.seed(2021)
+
+m <- Matrix::sparseMatrix(i = sample(x = 1e4, size  = 1e4),
+                  j = sample(x = 1e4, size = 1e4),
+                  x = rnorm(n = 1e4)
+                  )
+pryr::object_size(m)
+
+pryr::object_size(as.matrix(m))
+
+```
+
+结果表明稀疏矩阵大小为 132 Kb ；比密集矩阵 800 Mb 小很多。
+
+## 3.调整大内存读写R包
+
+例如使用`filematrix`代替`bigmemory`对矩阵读写。`filematrix`读写无延迟，适合大矩阵；·`bigmemory`文件关闭时再进行写操作，对于小矩阵的访问更好。
+
+考虑一个简单的任务：填满一个大矩阵（内存大小的两倍），比较两个包：
+```{R eval=FALSE}
+library(filematrix)
+fm = fm.create(
+        filenamebase = "big_fm",
+        nrow = 1e5,
+        ncol = 1e5)
+
+tic = proc.time()
+for( i in seq_len(ncol(fm)) ) {
+    message(i, " of ", ncol(fm))
+    fm[,i] = i + 1:nrow(fm)
+}
+toc = proc.time()
+show(toc-tic)
+
+# Cleanup
+
+closeAndDeleteFiles(fm)
+
+```
+
+## 4.使用高性能函数
+
+使用`bench::mark`来标出不同函数的性能，尽量编写高性能函数。
+
+```{R echo=TRUE}
+
+mean1 <- function(x) mean(x)
+
+mean2 <- function(x) sum(x) / length(x)
+
+x <- runif(1e5)
+
+bench::mark(
+  mean1(x),
+  mean2(x)
+)[c("expression", "min", "median", "itr/sec", "n_gc")]
+
+```
+
+## Ref
+
+[1] FastR, https://m-clark.github.io/docs/fastr.html
+
+[2] 稀疏矩阵表示，https://slowkow.com/notes/sparse-matrix/ 
+
+[3] Filematrix vs bigmemory可参考链接：https://cran.r-project.org/web/packages/filematrix/vignettes/FM3_filematrix_vs_bigmemory.html
+
+[4] bench 包 优化  https://adv-r.hadley.nz/perf-improve.html
+
+
+

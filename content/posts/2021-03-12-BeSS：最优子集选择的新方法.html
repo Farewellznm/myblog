@@ -1,0 +1,70 @@
+---
+title: "BeSS：最优子集选择的新方法"
+author: "LHS"
+date: "2021-03-12"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>对于超高维数据（上万维）的最优子集选择面临着“维数灾难”<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。常见的方法是通过正则化将最优子集问题转化为计算可行性问题，例如glmnet通过坐标下降法来解决<code>LASSO</code>（L1范数）问题。然而，原始对偶激活集算法（Primal Dual Active Set，<code>PDAS</code>）通过引入激活集，对所有β进行批量迭代，可以处理超高维数据。Canhong Wen等对PDAS泛化的损失函数的搜索步长（超参）进行优化，开发了一个新的R包：BeSS（(best subset selection)<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>，在高维数据上非常高效和稳定，可用于Cox’s proportional hazard (<code>CoxPH</code>) models等模型的最优子集的选择，这也是本人感兴趣的研究内容。几年前碰巧参加了统计之都举办的第11届R会议<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> ，论文共同作者全世杰对该方法进行了详细的讲解，现在终于有机会尝试一下这个方法。</p>
+<p>第一个应用是查找候选基因的相关基因,通过18975探针的基因表达芯片进行最优选择，最终挑选了500个探针和Trim32相关。</p>
+<pre><code>library(BeSS)
+data(&quot;trim32&quot;, package = &quot;BeSS&quot;)
+#基因 trim32
+y &lt;- trim32[, 1]
+x &lt;- as.matrix(trim32[, -1])
+# 参数bsrr表示LM 使用的是L2范数最优子集岭回归（best subset ridge regression）
+# 通过评估，作者也更推荐bsrr方法
+lm.bsrr &lt;- bess(x, y, type = &quot;bsrr&quot;)
+coef(lm.bsrr, sparse = TRUE)
+# 结果表明探针集x中有500个探针与trim32有关</code></pre>
+<p>第二个应用是用于基于logistic regression的分类问题，通过对候选基因集对乳腺癌病人进行ER+/ER-进行分类。</p>
+<pre><code>data(&quot;duke&quot;)
+y &lt;- duke$y
+x &lt;- as.matrix(duke[, -1])
+# 分类变量默认是服从二项式分布 family = &quot;binomial&quot;
+logi.bsrr &lt;- bess(x, y, family = &quot;binomial&quot;, type = &quot;bsrr&quot;)
+coef(logi.bsrr,sparse = TRUE)</code></pre>
+<p>第三个应用是基于预测变量与生存时间的 Cox’s proportional hazard (<code>CoxPH</code>) models，样本数据包括240个病人7399探针数的基因芯片数据。结果表明： 28 探针筛选出来进行下一步研究，接下来可以进行绘制生存曲线、风险分组研究、功能注释等研究。</p>
+<pre><code>data(LymphomaData, package = &quot;HCmodelSets&quot;)
+x &lt;- t(patient.data$x)
+y &lt;- patient.data$time
+status &lt;- patient.data$status
+cox.bsrr &lt;- bess(x, cbind(y, status), family = &quot;cox&quot;, type = &quot;bsrr&quot;)
+coef(cox.bsrr,sparse = TRUE)
+summary(cox.bsrr)
+# result
+-------------------------------------------------------------------------------------------
+    Penalized Primal-dual active algorithm with tuning parameter determined by  
+    powell method using golden section method for line search  
+    Best model with k = 28 lambda = 0.6479321 includes predictors:  
+      x257       x318       x556       x642      x1139      x1169      x1825      x1852  
+ 0.6601336  1.3846569  2.5690756 -1.0112962 -0.5492487 -1.0472138  2.9334996  3.1924001  
+     x1853      x1854      x2437      x3621      x3811      x4268      x4550      x4573  
+-7.3645950  4.3994243  1.6834107 -0.9379937 -0.7644796 -0.2787778  0.5236396  0.6186496  
+     x5027      x5281      x5698      x5730      x6166      x6193      x6607      x6669  
+-0.7308631  0.4190991 -0.8813230  0.6102003  0.5033100 -0.6861721  0.8676220 -0.7268185  
+     x7018      x7301      x7357      x7380  
+ 0.6680970 -0.6724847 -1.0013533  0.5002696  
+    log-likelihood:   -556.3917  
+    deviance:          1112.783  
+    GIC:               1352.753
+-------------------------------------------------------------------------------------------</code></pre>
+<p>总结：作者还进一步评估了BeSS包中的<code>BSRR</code>模型相比于BSS、Lasso、Elastic net在特征选择中表现得更好<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>。BeSS在生物大数据（芯片、RNAseq等）有着很大的应用场景,以后可以换点<code>新花样</code>去筛选预后模型指标</p>
+<div id="ref" class="section level1">
+<h1>Ref</h1>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>维数灾难：<a href="https://zh.wikipedia.org/wiki/%E7%BB%B4%E6%95%B0%E7%81%BE%E9%9A%BE" class="uri">https://zh.wikipedia.org/wiki/%E7%BB%B4%E6%95%B0%E7%81%BE%E9%9A%BE</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Wen, C., Zhang, A., Quan, S., &amp; Wang, X. (2020). BeSS: An R Package for Best Subset Selection in Linear, Logistic and Cox Proportional Hazards Models. Journal of Statistical Software, 94(4), 1 - 24. <a href="doi:http://dx.doi.org/10.18637/jss.v094.i04" class="uri">doi:http://dx.doi.org/10.18637/jss.v094.i04</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>统计之都：<a href="https://cosx.org/" class="uri">https://cosx.org/</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p><a href="https://cran.r-project.org/web/packages/BeSS/vignettes/An-introduction-to-BeSS.html">An introduction to BeSS</a><a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
