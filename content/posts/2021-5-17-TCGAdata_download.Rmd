@@ -6,6 +6,7 @@ category: Bioinfo
 tags: 
 - Bioinfo
 output: html_document
+draft:  true
 ---
 
 为了构建可重复性数据分析流程，使用可整合的现有工具进行数据下载十分重要。

@@ -6,6 +6,7 @@ category: R
 tags: 
 - R
 output: html_document
+draft:  true
 ---
 
 
