@@ -41,9 +41,6 @@ https://www.hujiaqi.work/
 
 2、生信技能树：[链接](http://www.biotrainee.com/)
 
-# 访问统计
 
-<a href="https://clustrmaps.com/site/1bh84"  title="Visit tracker">
-<img src="//www.clustrmaps.com/map_v2.png?d=6OdlYrS-YndDpRR45OCirySfN9jJkicjGzAmZfeOzC0&cl=ffffff" width = "300" height = "500" /></a>
 
 
