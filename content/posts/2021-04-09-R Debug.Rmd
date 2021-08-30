@@ -6,7 +6,7 @@ category: R
 tags: 
 - R
 output: html_document
-draft: true
+draft: True
 ---
 
 报错："Updating Loaded Packages - One or more of the packages that will be updated by installation are currently loaded. Restarting R prior to updating these packages is strongly recommended"，但是陷入死循环
