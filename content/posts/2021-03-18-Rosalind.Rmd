@@ -6,7 +6,7 @@ category: Bioinfo_base
 tags: 
 - Bioinfo
 output: html_document
-draft:  true
+draft: true
 ---
 
 Rosalind 是生物信息的 “力扣”
