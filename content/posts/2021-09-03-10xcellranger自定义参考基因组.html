@@ -1,0 +1,38 @@
+---
+title: "10Xcellranger自定义参考基因组"
+author: "LHS"
+date: "2021-09-03"
+category: bioinfo
+tags: 
+- 单细胞转录组
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>GTF文件包含无polyA的转录本的条目，这些条目会和编码蛋白的基因重叠。由于注释的重叠，这些条目会导致reads被标记为映射到多个基因（多映射）。在reads被标记为多映射的情况下，它们不会被再计数（cellranger官方解释了这种计数规则<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>）。</p>
+<pre><code>cellranger mkgtf Danio_rerio.GRCz11.99.chr.gtf\
+Danio_rerio.GRCz11.99.chr.filtered.gtf\
+--attribute=gene_biotype:protein_coding</code></pre>
+<div id="定制化参考基因组" class="section level1">
+<h1>定制化参考基因组</h1>
+<p>有些异源转基因研究产生的特定样本，需要定制化marker基因。这时候需要将其加入GTF和FASTA文件中。GFP蛋白是一种绿色荧光标记，</p>
+<p>我的GFP序列为GFP.fa,不同研究的会有差异：</p>
+<pre><code>&gt;GFP
+ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCAAGCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAAAGCGGCCGCGACTCTAGTCTCGAGCTGCAGGCATGCAAGCTTCTTAGACATGACTGTTCCTCAGTTCAAGTTGGGCACTTACGAGAAGACCGGTCTTGCTAGATTCTAATCAAGAGGATGTCAGAATGCCATTTGCCTGAGAGATGCAGGCTTCATTTTTGATACTTTTTTATTTGTAACCTATATAGTATAGGATTTTTTTTGTCATTTTGTTTCTTCTCGTACGAGCTTGCTCCTGATCAGCCTATCTCGCAGCTGATGAATATCTTGTGGTAGGGGTTTGGGAAAATCATTCGAGTTTGATGTTTTTCTTGGTATTTCCCACACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTT
+</code></pre>
+<p>统计GFP基因的碱基个数，</p>
+<pre><code>cat GFP.fa | grep -v &quot;^&gt;&quot; | tr -d &quot;\n&quot; | wc -c</code></pre>
+<p>创建GFP GTF 文件</p>
+<pre><code>echo -e &#39;GFP\tunknown\texon\t1\t717\t.\t+\t.\tgene_id &quot;GFP&quot;; transcript_id &quot;GFP&quot;; gene_name &quot;GFP&quot;; gene_biotype &quot;protein_coding&quot;;&#39; &gt; GFP.gtf</code></pre>
+</div>
+<div id="reference" class="section level1">
+<h1>Reference</h1>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://kb.10xgenomics.com/hc/en-us/articles/115003710383-Which-reads-are-considered-for-UMI-counting-by-Cell-Ranger-">cellranger count</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
