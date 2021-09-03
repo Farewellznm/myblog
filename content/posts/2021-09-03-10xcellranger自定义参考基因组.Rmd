@@ -4,7 +4,7 @@ author: "LHS"
 date: "2021-09-03"
 category: bioinfo
 tags: 
-- 单细胞转录组
+- 组学分析
 output: html_document
 ---
 
