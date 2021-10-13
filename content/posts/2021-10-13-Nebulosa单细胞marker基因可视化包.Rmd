@@ -1,0 +1,70 @@
+---
+title: "Nebulosa:单细胞marker基因可视化包"
+author: "LHS"
+date: "2021-10-13"
+category: bioinfo
+tags: 
+- 组学分析
+output: html_document
+---
+
+与传统的转录组测序相比，单细胞测序技术噪声很大，使得单细胞转录组数据包含大量的dropout事件（导致基因表达量为0或接近0），即使是一些标记（marker）基因也有可能表达量很低。当在使用其对聚类的细胞类型进行注释的时候，往往会影响可视化效果。  
+`Nebulosa`是一个基于加权核密度估计新出的R包，用于可视化单细胞的数据。它的目的是通过纳入细胞之间的相似性，允许细胞特征的 "卷积"，来恢复丢失的基因信号。
+
+**数据准备**
+
+首先需要安装和加载相应的包：
+
+```{R eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Nebulosa")
+library("Nebulosa")
+library("Seurat")
+```
+测试数据选择10x Genomics 免费提供的外周血单核细胞（PBMC）数据集，约有2700个细胞（https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz），下载完解压获得单细胞表达矩阵文件夹。接下来就简单的导入数据对其进行质控啦。
+```{R eval=FALSE}
+data <- Read10X(data.dir = "filtered_gene_bc_matrices/hg19/")
+pbmc <- CreateSeuratObject(counts = data,project = "pbmc3k",min.cells = 3,min.features = 200)
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+pbmc <- subset(pbmc, subset = nFeature_RNA < 2500 & percent.mt < 5)
+```
+接下来就到了数据标准化、降维、聚类，最后可以获得UMAP聚类图(Fig 1)，结果保存为.rds文件。
+
+![Fig 1 ：UMAP聚类图](https://user-images.githubusercontent.com/38640955/137085562-69b3323e-74c5-47fa-a9d6-f7755c5beeec.png)
+
+**Marker基因可视化**
+
+Nebulosa主函数是plot_density；和Seurat的 FeaturePlot 函数类似。通过下面两条代码，可以简单的对比一下。  
+```{r eval=FALSE}
+plot_density(pbmc, "CD4")
+FeaturePlot(pbmc, "CD4")
+```
+
+![Fig2：CD4在Nebulosa（左图）和FeaturePlot（右图）的UMAP可视化](https://user-images.githubusercontent.com/38640955/137087188-2c8738ae-6250-44ef-8485-1df0b236b515.png)
+
+可视化结果发现，Nebulosa可视化（左图）会比Seurat自带的绘图函数（右图）效果好很多；同时也表明了CD4+ cell存在相当多的dropout。再加上CD3D可视化结果（Fig3），我们很容易可以判断cluster 0,1为 CD4+ T cell。
+
+![Fig 3：CD3D UMAP可视化](https://user-images.githubusercontent.com/38640955/137087837-5d0e3418-81cf-45fc-8552-8c34eaeb3451.png)
+
+**多个marker基因联合可视化**
+
+知道了cluster 0,1是CD4+ T cell，让我们来鉴定Naive CD4+ T cells吧！更复杂的亚群鉴定需要多个marker一起来判定。只需要一行代码，Nebulosa可以将多个marker鉴定的结果组合起来。
+```{r eval=FALSE}
+plot_density(pbmc, c("CD4", "CCR7"), joint = TRUE)[[3]]
+```
+![Fig 4：Naive CD4+ T cells鉴定](https://user-images.githubusercontent.com/38640955/137088932-f16287e3-a322-49cd-bfe4-d9efaea2d2f1.png)
+
+我们很容易鉴定Naive CD4+ T cells，值得注意的是这些细胞主要包含于cluster 0（CD4+ T cell）(Fig 4)。  
+熟悉PBMC的读者应该知道，Naive CD8+ T cells（CD8+CCR7+细胞）通常聚集在CD4+CCR7+旁边，与其他CD8+细胞分开。我们也可以验证这一点，下图鉴定了cluster 9为Naive CD8+ T cell，它聚集在CD4+CCR7+旁边(Fig5)。
+```{r eval=FALSE}
+plot_density(pbmc, c("CD8A", "CCR7"), joint = TRUE)[[3]]
+```
+![Fig 5：Naive CD8+ T cells的鉴定](https://user-images.githubusercontent.com/38640955/137089362-442c7cfd-2d52-4a7e-9c03-522c3a8c4ca8.png)
+
+总之，Nebulosa对于检测dropped-outgenes信号和改善其在低维空间的可视化是有效的，对于基因表达较好的基因，直接基因表达可视化是更好的选择。我们可以多多尝试Nebulosa和Seurat以及Bioconductor中其他可视化方法一起使用，进而得出更加可靠的分析结论。
+
+**Ref：**
+
+[1] Jose Alquicira-Hernandez, Joseph E Powell, Nebulosa recovers single-cell gene expression signals by kernel density estimation, Bioinformatics, Volume 37, Issue 16, 15 August 2021, Pages 2485–2487, https://doi.org/10.1093/bioinformatics/btab003
+[2]Bioconductor教程：http://www.bioconductor.org/packages/release/bioc/vignettes/Nebulosa/inst/doc/nebulosa_seurat.html
