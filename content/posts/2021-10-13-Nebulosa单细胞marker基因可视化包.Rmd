@@ -29,7 +29,16 @@ pbmc <- CreateSeuratObject(counts = data,project = "pbmc3k",min.cells = 3,min.fe
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 pbmc <- subset(pbmc, subset = nFeature_RNA < 2500 & percent.mt < 5)
 ```
-接下来就到了数据标准化、降维、聚类，最后可以获得UMAP聚类图(Fig 1)，结果保存为.rds文件。
+接下来可以进行数据标准化、降维、聚类分析，最后可以获得UMAP聚类图(Fig 1)，结果保存为.rds文件。
+```{R eval=FALSE}
+pbmc <- SCTransform(pbmc, verbose = FALSE)
+pbmc <- RunPCA(pbmc)
+pbmc <- RunUMAP(pbmc, dims = 1:30)
+pbmc <- FindNeighbors(pbmc, dims = 1:30)
+pbmc <- FindClusters(pbmc)
+DimPlot(pbmc, label = TRUE, repel = TRUE)
+saveRDS(pbmc,"pbmc.rds")
+```
 
 ![Fig 1 ：UMAP聚类图](https://user-images.githubusercontent.com/38640955/137085562-69b3323e-74c5-47fa-a9d6-f7755c5beeec.png)
 

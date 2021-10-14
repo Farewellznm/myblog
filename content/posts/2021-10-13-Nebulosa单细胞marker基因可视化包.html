@@ -25,7 +25,14 @@ library(&quot;Seurat&quot;)</code></pre>
 pbmc &lt;- CreateSeuratObject(counts = data,project = &quot;pbmc3k&quot;,min.cells = 3,min.features = 200)
 pbmc[[&quot;percent.mt&quot;]] &lt;- PercentageFeatureSet(pbmc, pattern = &quot;^MT-&quot;)
 pbmc &lt;- subset(pbmc, subset = nFeature_RNA &lt; 2500 &amp; percent.mt &lt; 5)</code></pre>
-<p>接下来就到了数据标准化、降维、聚类，最后可以获得UMAP聚类图(Fig 1)，结果保存为.rds文件。</p>
+<p>接下来可以进行数据标准化、降维、聚类分析，最后可以获得UMAP聚类图(Fig 1)，结果保存为.rds文件。</p>
+<pre class="r"><code>pbmc &lt;- SCTransform(pbmc, verbose = FALSE)
+pbmc &lt;- RunPCA(pbmc)
+pbmc &lt;- RunUMAP(pbmc, dims = 1:30)
+pbmc &lt;- FindNeighbors(pbmc, dims = 1:30)
+pbmc &lt;- FindClusters(pbmc)
+DimPlot(pbmc, label = TRUE, repel = TRUE)
+saveRDS(pbmc,&quot;pbmc.rds&quot;)</code></pre>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/38640955/137085562-69b3323e-74c5-47fa-a9d6-f7755c5beeec.png" alt="" />
 <p class="caption">Fig 1 ：UMAP聚类图</p>
