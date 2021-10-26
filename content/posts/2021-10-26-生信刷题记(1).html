@@ -1,0 +1,51 @@
+---
+title: "刷题记:RNA翻译成蛋白质"
+author: "LHS"
+date: "2021-10-26"
+category: bioinfo
+tags: 
+- 刷题记
+output: html_document
+---
+
+<script src="2021-10-26-生信刷题记(1)_files/header-attrs/header-attrs.js"></script>
+
+
+<p>参考Rosalind <a href="http://rosalind.info/problems/prot/" class="uri">http://rosalind.info/problems/prot/</a>
+下面是考虑了开放阅读框<code>ORF</code>的写法：</p>
+<pre class="python"><code>import os
+os.getcwd()
+codon_table = {
+    &#39;GCU&#39;:&#39;A&#39;, &#39;GCC&#39;:&#39;A&#39;, &#39;GCA&#39;:&#39;A&#39;, &#39;GCG&#39;:&#39;A&#39;, &#39;CGU&#39;:&#39;R&#39;, &#39;CGC&#39;:&#39;R&#39;,   
+    &#39;CGA&#39;:&#39;R&#39;, &#39;CGG&#39;:&#39;R&#39;, &#39;AGA&#39;:&#39;R&#39;, &#39;AGG&#39;:&#39;R&#39;, &#39;UCU&#39;:&#39;S&#39;, &#39;UCC&#39;:&#39;S&#39;,
+    &#39;UCA&#39;:&#39;S&#39;, &#39;UCG&#39;:&#39;S&#39;, &#39;AGU&#39;:&#39;S&#39;, &#39;AGC&#39;:&#39;S&#39;, &#39;AUU&#39;:&#39;I&#39;, &#39;AUC&#39;:&#39;I&#39;,
+    &#39;AUA&#39;:&#39;I&#39;, &#39;UUA&#39;:&#39;L&#39;, &#39;UUG&#39;:&#39;L&#39;, &#39;CUU&#39;:&#39;L&#39;, &#39;CUC&#39;:&#39;L&#39;, &#39;CUA&#39;:&#39;L&#39;,
+    &#39;CUG&#39;:&#39;L&#39;, &#39;GGU&#39;:&#39;G&#39;, &#39;GGC&#39;:&#39;G&#39;, &#39;GGA&#39;:&#39;G&#39;, &#39;GGG&#39;:&#39;G&#39;, &#39;GUU&#39;:&#39;V&#39;,
+    &#39;GUC&#39;:&#39;V&#39;, &#39;GUA&#39;:&#39;V&#39;, &#39;GUG&#39;:&#39;V&#39;, &#39;ACU&#39;:&#39;T&#39;, &#39;ACC&#39;:&#39;T&#39;, &#39;ACA&#39;:&#39;T&#39;,
+    &#39;ACG&#39;:&#39;T&#39;, &#39;CCU&#39;:&#39;P&#39;, &#39;CCC&#39;:&#39;P&#39;, &#39;CCA&#39;:&#39;P&#39;, &#39;CCG&#39;:&#39;P&#39;, &#39;AAU&#39;:&#39;N&#39;,
+    &#39;AAC&#39;:&#39;N&#39;, &#39;GAU&#39;:&#39;D&#39;, &#39;GAC&#39;:&#39;D&#39;, &#39;UGU&#39;:&#39;C&#39;, &#39;UGC&#39;:&#39;C&#39;, &#39;CAA&#39;:&#39;Q&#39;,
+    &#39;CAG&#39;:&#39;Q&#39;, &#39;GAA&#39;:&#39;E&#39;, &#39;GAG&#39;:&#39;E&#39;, &#39;CAU&#39;:&#39;H&#39;, &#39;CAC&#39;:&#39;H&#39;, &#39;AAA&#39;:&#39;K&#39;,
+    &#39;AAG&#39;:&#39;K&#39;, &#39;UUU&#39;:&#39;F&#39;, &#39;UUC&#39;:&#39;F&#39;, &#39;UAU&#39;:&#39;Y&#39;, &#39;UAC&#39;:&#39;Y&#39;, &#39;AUG&#39;:&#39;M&#39;,
+    &#39;UGG&#39;:&#39;W&#39;, &#39;UAG&#39;:&#39;STOP&#39;, &#39;UGA&#39;:&#39;STOP&#39;, &#39;UAA&#39;:&#39;STOP&#39;
+    }
+
+rna = &quot;&quot;
+for line in open(&quot;./03_python_learnning/PythonTest/rosalind_prot.txt&quot;,&quot;r&quot;):
+    if not line.startswith(&quot;&gt;&quot;):
+        rna = rna + line.strip()
+with open(&quot;./03_python_learnning/PythonTest/prot.txt&quot;,&quot;w&quot;) as f:
+    for openframe in range(3):
+        pro = &quot;&quot;
+        f.write(&quot;Openfram&quot;+ str(openframe +1) + &quot;\n&quot;)
+        for i in range(openframe,len(rna),3):
+            codon = rna[i:i+3]
+            if codon in codon_table:
+                if codon_table[codon] == &quot;STOP&quot;:
+                    pro = pro + &quot;*&quot;
+                else:
+                    pro = pro + codon_table[codon]
+            else:
+                pro = pro + &quot;-&quot;
+        f.write(str(pro) + &quot;\n&quot;)   
+f.close()</code></pre>
+<p>涉及到的python知识点：<code>文件读写</code>；<code>字典</code>；判断与循环语句</p>

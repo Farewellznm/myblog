@@ -1,0 +1,53 @@
+---
+title: "刷题记:RNA翻译成蛋白质"
+author: "LHS"
+date: "2021-10-26"
+category: bioinfo
+tags: 
+- 刷题记
+output: html_document
+---
+参考Rosalind http://rosalind.info/problems/prot/
+下面是考虑了开放阅读框`ORF`的写法：
+
+```{python eval=FALSE}
+import os
+os.getcwd()
+codon_table = {
+    'GCU':'A', 'GCC':'A', 'GCA':'A', 'GCG':'A', 'CGU':'R', 'CGC':'R',   
+    'CGA':'R', 'CGG':'R', 'AGA':'R', 'AGG':'R', 'UCU':'S', 'UCC':'S',
+    'UCA':'S', 'UCG':'S', 'AGU':'S', 'AGC':'S', 'AUU':'I', 'AUC':'I',
+    'AUA':'I', 'UUA':'L', 'UUG':'L', 'CUU':'L', 'CUC':'L', 'CUA':'L',
+    'CUG':'L', 'GGU':'G', 'GGC':'G', 'GGA':'G', 'GGG':'G', 'GUU':'V',
+    'GUC':'V', 'GUA':'V', 'GUG':'V', 'ACU':'T', 'ACC':'T', 'ACA':'T',
+    'ACG':'T', 'CCU':'P', 'CCC':'P', 'CCA':'P', 'CCG':'P', 'AAU':'N',
+    'AAC':'N', 'GAU':'D', 'GAC':'D', 'UGU':'C', 'UGC':'C', 'CAA':'Q',
+    'CAG':'Q', 'GAA':'E', 'GAG':'E', 'CAU':'H', 'CAC':'H', 'AAA':'K',
+    'AAG':'K', 'UUU':'F', 'UUC':'F', 'UAU':'Y', 'UAC':'Y', 'AUG':'M',
+    'UGG':'W', 'UAG':'STOP', 'UGA':'STOP', 'UAA':'STOP'
+    }
+
+rna = ""
+for line in open("./03_python_learnning/PythonTest/rosalind_prot.txt","r"):
+    if not line.startswith(">"):
+        rna = rna + line.strip()
+with open("./03_python_learnning/PythonTest/prot.txt","w") as f:
+    for openframe in range(3):
+        pro = ""
+        f.write("Openfram"+ str(openframe +1) + "\n")
+        for i in range(openframe,len(rna),3):
+            codon = rna[i:i+3]
+            if codon in codon_table:
+                if codon_table[codon] == "STOP":
+                    pro = pro + "*"
+                else:
+                    pro = pro + codon_table[codon]
+            else:
+                pro = pro + "-"
+        f.write(str(pro) + "\n")   
+f.close()
+    
+```
+
+涉及到的python知识点：`文件读写`；`字典`；判断与循环语句
+
