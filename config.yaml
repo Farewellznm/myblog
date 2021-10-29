@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 不管是梧桐树下醉酒的男人，还是临街海鲜店散发的刺鼻的味道，以及在朝阳下埋头赶路的行人，我都觉得自己是微不足道的幸福个体。
+  description: 今日はまるで昨日みたいだ　明日を変えるなら今日を変えなきゃ
   
   mathjax: yes
   
