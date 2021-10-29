@@ -1,0 +1,75 @@
+---
+title: "RNAseq质控结果解读:fastqc"
+author: "LHS"
+date: "2021-10-28"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+---
+
+# 1.fastqc报告解读
+
+不同版本fastqc 的报告会有不一样，但是主要有以下几个部分，主要关注`Per base sequence quality`;`Sequence Duplication Levels`; `Adapter Content`。
+
+1. `Basic Statistics`: 其他的都好理解，值得注意的是 Sequence length 测序长度；%GC，GC含量，二代测序GC会有偏好性，深度增加，%GC会增加  
+
+![01_Basic Statistics ](https://user-images.githubusercontent.com/38640955/139388400-84fbcac1-20c5-4eb8-a9a3-655c82d406d1.png)
+
+2. `Per base sequence quality`，序列测序【碱基质量】
+![02_per_base_quality](https://user-images.githubusercontent.com/38640955/139388406-bcd05f16-5b12-43ec-a0ae-39e3dc29d851.png)
+
+横轴代表reads的第1-150个碱基，纵轴是质量得分；蓝线代表均值，红线中位数，黄色区间为25%-75%区间，误差区间为10%-90%。当碱基质量低于10会出现'WARN'，低于5，出现'FAIL'。  
+碱基质量的计算公式为，$Q = -10*log10(P_{err})$ ， Q20代表1%的错误率 ，Q30 代表0.1%的错误率。关于fastq Q值和ASCII码的换算以及Phred33与Phred64的判断可以详见这篇[博客](https://cloud.tencent.com/developer/article/1443946)。
+
+3. `Per sequence quality scores`, 测序【序列质量】  
+
+![03_per_sequence_quality](https://user-images.githubusercontent.com/38640955/139389337-b505ce6a-6861-4dfe-b57a-cd02876f3a3b.png)
+   横轴为平均碱基质量值，纵坐标为序列数目，大部分大于Q30，说明质量好，如果出现峰值小于Q27（err=0.2%）的时候报'WARN'，小于Q20报'FAIL'。
+   
+4. `Per base sequence content`,序列碱基含量
+
+![04_per_base_sequence_content](https://user-images.githubusercontent.com/38640955/139389682-909c9527-53be-4ff9-adc0-b3efb80c25fd.png)
+
+统计1-150bp四种碱基出现的频率：正常情况AT、GC含量应该重叠，四条线应该平行且接近；开头会出现偏差由于测序仪不稳定，如果加入了barcode等不均一文库也会产生碱基分离；reads结尾出现的偏离，是接头污染产生的。当AT/CG比例超过10%，报'WARN',超过20，报'FAIL'。
+
+5. `Per sequence GC content`,序列GC含量
+
+![05_per_sequence_gc_content](https://user-images.githubusercontent.com/38640955/139389698-275ed862-7dee-4ce9-8c2a-8467c650f695.png)
+
+   分布函数应该与理论正态分布一致，这里均值接近50；如果分布偏离理论，系统偏差，如果出现多个峰值，表明数据可能有异源污染，可能是接头序列的二聚体污染。偏15%，'WARN'；偏30%，'FAIL'
+
+6. `Per base N content`,序列碱基N的比例
+    测序仪测不出来，产生N，测序仪没问题一般N的比例很小。超5%，'WARN'; 超20%，'FAIL'
+![06_per_base_n_content](https://user-images.githubusercontent.com/38640955/139389708-f986df63-c9ec-4d53-8c70-276c9c8b9b29.png)
+7. `Sequence Length Distribution`, 序列长度分布，这里的序列长度是150
+
+![07_sequence_length_distribution](https://user-images.githubusercontent.com/38640955/139390041-0b919b3f-4757-41c7-b615-a6128a10d744.png)
+
+8. `Sequence Duplication Levels`, 序列重复水平
+
+![08_duplication_levels](https://user-images.githubusercontent.com/38640955/139389719-c20d52a5-44bc-4181-8b35-62aa0d989f65.png)
+0a8e38972a2.png)
+
+红线代表Deduplicated reads(unique reads)，篮线代表总reads，横轴为重复次数，纵轴为重复百分比，具体理解见知乎[回答](https://zhuanlan.zhihu.com/p/44914479),总reads百分比超过20报'WARN'，超过50报'FAIL'。
+
+RNAseq中这一项一般都会报错。如何理解RNAseq的重复以及如何判断是否需要去重需要很有经验。【下节】详细讨论一下这个问题。
+
+9. `Overrepresented
+sequences`,重复率过高的reads，可能来源Adapter，index，后面需要去除
+10. `Adapter Content`,四种接头的含量，这里Illumina Universal Adapter 含量偏高，后续需要去除。
+![09_adapter_content](https://user-images.githubusercontent.com/38640955/139389730-276e0cb9-0d2b-4fab-a10f-dfcb0adfe9bb.png)
+
+# 2. RNAseq 序列重复水平的解释
+
+
+RNAseq数据的特征，高表达基因的reads数可能普遍偏多，打断后有重复是很正常的事情。
+
+
+# 3. fastqc与multiqc 
+
+
+# 4. 10x单细胞转录组QC结果解读
+
+
+
