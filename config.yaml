@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 今日はまるで昨日みたいだ　明日を変えるなら今日を変えなきゃ
+  description: 我也在和自己妥协，三年前我觉得太唐突太不靠谱了，那时候太早了；现在又太晚了。
   
   mathjax: yes
   
