@@ -40,10 +40,10 @@ params:
   googleAnalyticsAsync: yes
   mainSection: posts 
   postsOnHomePage: 5
-  projectsUrl: https://github.com/gohugoio
+  projectsUrl: https://github.com/Farewellznm
   rss: yes
   show_updated: yes
-  showAllPostsOnHomePage: yes
+  showAllPostsOnHomePage: no
   showProjectsList: yes
   social:
     - link: https://github.com/Farewellznm
