@@ -1,0 +1,96 @@
+---
+title: "转录组RNAseq上下游分析"
+author: "LHS"
+date: "2021-11-02"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>我又闲着无聊来过<code>RNAseq</code>流程了，这次写一个详细的上下游分析教程。后面有机会将这些代码进行函数封装，同时也尝试一下snakemake，这是今年底之前的任务。[ps,去年也说过，这篇帖子占一下坑。]</p>
+<p>首先是RNAseq上游分析，从fastq到定量表达矩阵：</p>
+<p>1.配置<code>conda</code>环境，下载相关软件包：</p>
+<pre class="bash"><code># download conda
+wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
+# list conda env
+conda env list
+# create bioinfo env
+conda create bioinfo 
+# activate deactivate
+conda activate bioinfo 
+conda deactivate
+# show conda channel 
+conda config --set show_channel_urls yes
+# add conda sourse 
+# bioinfo sourse bioconda
+# vim .condarc
+channels:
+  - https://mirrors.ustc.edu.cn/anaconda/cloud/bioconda/  
+  - https://mirrors.sjtug.sjtu.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.sjtug.sjtu.edu.cn/anaconda/pkgs/free/
+  - https://mirrors.sjtug.sjtu.edu.cn/anaconda/cloud/conda-forge/
+ssl_verify: true
+# install -c  assign channel 
+conda install -c bioconda java-jdk fastqc 
+conda install -c bioconda fastp</code></pre>
+<p>2.批量下载数据，GEO号：GSE166412</p>
+<pre class="bash"><code># ibm 高速下载
+wget https://d3gcli72yxqn2z.cloudfront.net/connect_latest/v4/bin/ibm-aspera-connect_4.1.0.46-linux_x86_64.tar.gz
+tar zvxf ibm-aspera-connect_4.1.0.46-linux_x86_64.tar.gz
+bash ibm-aspera-connect_4.1.0.46-linux_x86_64.sh
+echo &#39;export PATH=$PATH:~/.aspera/connect/bin&#39; &gt;&gt; ~/.bash_profile
+source ~/.bashrc
+ascp --help
+
+# data download
+# Yunli Xie RNAseq 数据 GSE166412
+# sratools
+# prefetch
+for i in $(seq 60 65);
+do 
+  prefetch SRR136650${i}
+done
+
+# fastq dump sratofastq.sh
+
+cat SRR_Acc_List.txt  | while read id
+do 
+    nohup fastq-dump --gzip --split-3 -O ../fastq/ ${id}
+done
+
+# submit by PBS
+echo &quot; bash sra2fastq.sh  &quot; | qsub -V -N $(pwd | sed &#39;s/.*\///&#39;)_sra2fq -d $(pwd) -l nodes=1:ppn=8  -l mem=25gb -q Batch1
+qstat -u Sc03</code></pre>
+<p>3.质控<code>fastqc</code></p>
+<pre class="bash"><code># fastqc java
+# conda install -c bioconda java-jdk fastqc 
+cd 02_QC; mkdir fastqc_output
+# help
+fastqc  -h
+# 02_QC.sh
+fastqc -t 8 ~/RNAseq/01_Rawdata/GSE166412/fastq/*.fastq.gz -o ~/RNAseq/02_QC/fastqc_output/
+echo &quot; bash 02_QC.sh &quot; | qsub -V -N $(pwd | sed &#39;s/.*\///&#39;)_index -d $(pwd) -l nodes=1:ppn=8  -l mem=25gb -q Batch1
+</code></pre>
+<p>4.比对, hisat2 由于在服务器上没有权限，缺少相应的<code>gcc</code>库（libstdc++.so.6），安装又巨麻烦，所以暂时选择STAR来比对了</p>
+<pre class="bash"><code># download STAR
+wget https://github.com/alexdobin/STAR/archive/2.5.3a.tar.gz
+tar -xzf 2.5.3a.tar.gz
+echo &#39;export PATH=$PATH:~/software/STAR-2.5.3a/bin/Linux_x86_64&#39; &gt;&gt; ~/.bash_profile
+source ~/.bash_profile
+</code></pre>
+<p>创建索引</p>
+<pre class="bash"><code># create index
+echo &#39;STAR --runThreadN 6 --runMode genomeGenerate --genomeDir star_index --genomeFastaFiles mm10_genome.fa --sjdbGTFfile mm10.refGene.gtf &#39; &gt; STAR_index.sh
+echo &quot; bash STAR_index.sh &quot; | qsub -V -N $(pwd | sed &#39;s/.*\///&#39;)_qc -d $(pwd) -l nodes=1:ppn=8  -l mem=25gb -q Batch1</code></pre>
+<p>比对</p>
+<pre class="bash"><code># alin
+STAR --twopassMode </code></pre>
+<p>接下来进行RNAseq下游分析，从表达矩阵到各种可视化结果：</p>
+<p>1.差异分析</p>
+<p>2.功能富集分析</p>
+<p>3.PPI分析</p>
+<p>4.GSEA/GSVA分析</p>
