@@ -1,12 +1,12 @@
 ---
-title: "cellranger DIY Reference genomes"
+title: "10xCellranger自定义参考基因组"
 author: "LHS"
 date: "2021-09-03"
 category: bioinfo
 tags: 
 - 组学分析
 output: html_document
-draft: True
+draft: False
 ---
 
 GTF文件包含无 polyA 的转录本的条目，这些条目会和编码蛋白的基因重叠。由于注释的重叠，这些条目会导致reads被标记为映射到多个基因（多映射）。在reads被标记为多映射的情况下，它们不会被再计数（cellranger官方解释了这种计数规则[^1]）。
