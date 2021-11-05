@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 我也在和自己妥协，三年前我觉得太唐突太不靠谱了，那时候太早了；现在又太晚了。
+  description: 若夫淫雨霏霏，连月不开，阴风怒号，浊浪排空；日星隐曜，山岳潜形；商旅不行，樯倾楫摧；薄暮冥冥，虎啸猿啼。登斯楼也，则有去国怀乡，忧谗畏讥，满目萧然，感极而悲者矣
   
   mathjax: yes
   
