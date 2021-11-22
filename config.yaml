@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 方木，你好像躲在一个看上去透明，却又厚厚的壳子里，我可以帮你打碎它。其实没那么难，就像打碎一面镜子，你只需要盯着它，面对它。别这么傲娇，更别恐惧，也就是一挥拳，就算是手破了，又能流多少血呢？《心理罪》2017
+  description: 不管是梧桐树下醉酒的男人，还是临街海鲜店散发的刺鼻的味道，以及在朝阳下埋头赶路的行人，我都觉得自己是微不足道的幸福个体。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
