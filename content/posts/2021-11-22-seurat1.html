@@ -1,0 +1,533 @@
+---
+title: "单细胞数据处理Seurat包学习（1）"
+author: "Zhaojn"
+date: "2021-11-22"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<div id="构建seurat" class="section level1">
+<h1>构建Seurat</h1>
+<div id="示例一致的10x的数据格式" class="section level2">
+<h2>示例一致的10X的数据格式</h2>
+<p>数据处理成seurat包的输入格式，Seurat直接读取文件夹，文件夹包括三个文件，两个注释信息，一个matrix</p>
+<p>1 barcodes.tsv</p>
+<p>2 genes.tsv</p>
+<p>3 matrix.mtx</p>
+</div>
+<div id="两个-key-functions" class="section level2">
+<h2>两个 key functions</h2>
+<p>Read10X</p>
+<p>CreateSeuratObject</p>
+</div>
+<div id="单细胞数据第一种数据类型构建seurat对象" class="section level2">
+<h2>单细胞数据第一种数据类型构建Seurat对象</h2>
+<pre class="r"><code>scRNA_data1 &lt;- Read10X(data.dir = &quot;data/scType1/&quot;)
+
+# 构建Seurat对象
+srt1 &lt;- CreateSeuratObject(counts = scRNA_data1, 
+                            # 表达矩阵，可以是稀疏矩阵，也可以是普通矩阵
+                            min.cells = 3, # 去除在小于3个细胞中表达的基因
+                            min.features = 200 # 去除只有200个以下基因表达 的细胞
+)
+
+
+# c查看数据类型
+typeof(srt1) # &quot;S4&quot;
+class(srt1) # &quot;dgCMatrix&quot;
+
+# 计算稀疏矩阵的内存大小
+sparse.size &lt;- object.size(x = srt1)
+sparse.size
+
+# 查看稀疏矩阵数据
+srt1@assays[[&quot;RNA&quot;]][1:10, 1:4]
+head(srt1@meta.data)</code></pre>
+</div>
+<div id="单细胞数据第二种数据类型构建seurat对象" class="section level2">
+<h2>单细胞数据第二种数据类型构建Seurat对象</h2>
+<pre class="r"><code>rm(list = ls())
+scRNA_data2 &lt;- read.table(&quot;datascType2/GSE118389_counts_rsem.txt&quot;)
+scRNA_data2[1:4,1:4]
+dim(scRNA_data2) 
+
+#原始矩阵有1534个cell，21785个gene
+SRT2 &lt;- read.table(&quot;data/scType2/SraRunTable.txt&quot;, sep = &quot;,&quot;, header = T)#这里可以用rio包，读取速度感人
+dim(SRT2)
+head(SRT2)
+# 通过观察，表达矩阵scRNA_data2：1534个cell，21785个gene
+# 通过观察SRT2了解到表达矩阵scRNA_data2的细胞名在metadata数据中没找到，那么就到Seriex matrix中寻找对应数据，发现了有细胞名对应的GSM编号，因此提取这两列出来做处理
+Cell_ID &lt;- read.table(&quot;data/scType2/cellID.txt&quot;, sep = &quot;\t&quot;, header = T)
+head(Cell_ID)
+
+# 将样本名合并到metadata数据中
+SRT2_1 &lt;- SRT2 %&gt;%
+  inner_join(Cell_ID, &quot;Sample.Name&quot;)
+head(SRT2_1) # 保留数据备用
+write_tsv(SRT2_1, &quot;SRT2_1.txt&quot;)
+
+# 构建metadata只需要细胞名称和对应的GSM编号即可，也就是我们从Seriex matrix提取的两列数据
+# 匹配表达矩阵和Cell_ID中的细胞名称，让两者顺序一致
+scRNA_data2_1 &lt;- scRNA_data2[,Cell_ID$MTX.name]
+table(Cell_ID$MTX.name == colnames(scRNA_data2_1))
+Cell_ID &lt;- column_to_rownames(Cell_ID, &quot;MTX.name&quot;)
+# 两者一致后就可以构建Seurat对象
+srt2 &lt;- CreateSeuratObject(counts = scRNA_data2_1,
+                           meta.data = Cell_ID,
+                           min.cells = 3, 
+                           min.features = 200)
+</code></pre>
+</div>
+<div id="单细胞数据第三种数据类型构建seurat对象" class="section level2">
+<h2>单细胞数据第三种数据类型构建Seurat对象</h2>
+<pre class="r"><code># 保留Tumor组的数据进行合并
+rm(list = ls())
+
+# 引用包
+library(limma)
+setwd(&quot;&quot;)     #设置工作目录
+files &lt;- dir()      
+files
+# 获取目录下所有文件
+files &lt;- grep(&quot;txt$&quot;, files, value=T)      # 提取.txt结尾的文件
+files
+
+# 数据合并
+scRNA_data3 &lt;- data.frame()
+for(i in 1:length(files)){
+  inputFile &lt;- files[i]
+  # 读取输入文件，并对输入文件进行整理
+  rt &lt;- read.table(inputFile, header=T, sep=&quot;\t&quot;)
+  rownames(rt) = rt[,1]
+  rt = rt[,2:ncol(rt)]
+  
+  #数据合并
+  if(ncol(scRNA_data3) == 0){
+    scRNA_data3 = rt
+  }else{
+    scRNA_data3 = cbind(scRNA_data3, rt)
+  }
+}
+
+dim(scRNA_data3) # 306个细胞，24153个基因
+
+# 写出数据
+
+scRNA_data3_Tumor &lt;- rownames_to_column(scRNA_data3, &quot;ID&quot;)
+write_tsv(scRNA_data3_Tumor, &quot;scRNA_data3_Tumor.txt&quot;)
+
+# 同样方法处理对照组数据
+rm(list = ls())
+
+# 引用包
+setwd(&quot;&quot;)     #设置工作目录
+files &lt;- dir()      
+files
+# 获取目录下所有文件
+files &lt;- grep(&quot;txt$&quot;, files, value=T)      # 提取.txt结尾的文件
+files
+
+# 数据合并
+scRNA_data3 &lt;- data.frame()
+for(i in 1:length(files)){
+  inputFile &lt;- files[i]
+  # 读取输入文件，并对输入文件进行整理
+  rt &lt;- read.table(inputFile, header=T, sep=&quot;\t&quot;)
+  rownames(rt) = rt[,1]
+  rt = rt[,2:ncol(rt)]
+  
+  #数据合并
+  if(ncol(scRNA_data3) == 0){
+    scRNA_data3 = rt
+  }else{
+    scRNA_data3 = cbind(scRNA_data3, rt)
+  }
+}
+
+dim(scRNA_data3) # 306个细胞，24153个基因
+
+# 写出数据
+
+scRNA_data3_Control &lt;- rownames_to_column(scRNA_data3, &quot;ID&quot;)
+write_tsv(scRNA_data3_Control, &quot;scRNA_data3_Control.txt&quot;)
+
+# 将两个矩阵转移到scType3文件夹下方进行后续处理
+rm(list = ls())
+
+setwd(&quot;&quot;)     #设置工作目录
+scRNA_data3_Control &lt;- read.table(&quot;data/scType3/scRNA_data3_Control.txt&quot;, header = T, row.names = 1)
+
+srt3_1 &lt;- CreateSeuratObject(counts = scRNA_data3_Control,
+                           min.cells = 3, 
+                           min.features = 200)
+
+scRNA_data3_Tumor &lt;- read.table(&quot;data/scType3/scRNA_data3_Tumor.txt&quot;, header = T, row.names = 1)
+
+srt3_2 &lt;- CreateSeuratObject(counts = scRNA_data3_Tumor,
+                             min.cells = 3, 
+                             min.features = 200)
+srt3_list &lt;- list(Control = srt3_1, 
+                  Tumor = srt3_2)
+</code></pre>
+<p>raw data,</p>
+<p>matrix,</p>
+<p>Rdata</p>
+<hr />
+</div>
+</div>
+<div id="质控" class="section level1">
+<h1>质控</h1>
+<p>PercentageFeatureSet 算一下某个自定义基因集在各个细胞中的比例</p>
+<pre class="r"><code># The [[ operator can add columns to object metadata. This is a great place to stash QC stats
+#增加percent.mt这一列
+pbmc[[&quot;percent.mt&quot;]] &lt;- PercentageFeatureSet(pbmc, pattern = &quot;^MT-&quot;)
+
+# Show QC metrics for the first 5 cells，增加后的矩阵
+head(pbmc@meta.data, 5)#show 前5个细胞
+
+# Visualize QC metrics as a violin plot可视化
+VlnPlot(pbmc, features = c(&quot;nFeature_RNA&quot;, &quot;nCount_RNA&quot;, &quot;percent.mt&quot;), ncol = 3)
+</code></pre>
+<p>FeatureScatter</p>
+<pre class="r"><code># FeatureScatter is typically used to visualize feature-feature relationships, but can be used
+# for anything calculated by the object, i.e. columns in object metadata, PC scores etc.
+#两个特征之间的关系
+plot1 &lt;- FeatureScatter(pbmc, feature1 = &quot;nCount_RNA&quot;, feature2 = &quot;percent.mt&quot;)
+plot2 &lt;- FeatureScatter(pbmc, feature1 = &quot;nCount_RNA&quot;, feature2 = &quot;nFeature_RNA&quot;)
+plot1 + plot2#</code></pre>
+<pre class="r"><code>#过滤具有超过 2500 或少于 200 feature
+#过滤线粒体计数小于5%的细胞
+pbmc &lt;- subset(pbmc, subset = nFeature_RNA &gt; 200 &amp; nFeature_RNA &lt; 2500 &amp; percent.mt &lt; 5)</code></pre>
+</div>
+<div id="对数据进行标准化" class="section level1">
+<h1>对数据进行标准化</h1>
+<p>NormalizeData</p>
+<pre class="r"><code>pbmc &lt;- NormalizeData(pbmc, normalization.method = &quot;LogNormalize&quot;, scale.factor = 10000)</code></pre>
+</div>
+<div id="筛选高变基因找差异" class="section level1">
+<h1>筛选高变基因（找差异）</h1>
+<p>它们在某些细胞中高度表达，而在其他细胞中表达低</p>
+<p>FindVariableFeatures</p>
+<pre class="r"><code>pbmc &lt;- FindVariableFeatures(pbmc, 
+                             selection.method = &quot;vst&quot;, 
+                             nfeatures = 2000)
+
+# Identify the 10 most highly variable genes
+top10 &lt;- head(VariableFeatures(pbmc), 10)
+
+# plot variable features with and without labels
+plot1 &lt;- VariableFeaturePlot(pbmc)
+plot2 &lt;- LabelPoints(plot = plot1, 
+                     points = top10, 
+                     repel = TRUE)
+plot1 + plot2
+纵坐标是方差，横坐标是平均表达量，红色的点就代表了高变基因，黑色的点代表了变化不大的基因</code></pre>
+</div>
+<div id="降维" class="section level1">
+<h1>降维</h1>
+<p>降维有三种</p>
+<p>线性PCA</p>
+<p>非线性</p>
+<p>t-SNE分析，基于PCA分析结果进行非线性降维分析</p>
+<p>UMAP分析，t-SNE的完美替代品，速度快</p>
+<p>RunPCA</p>
+<p>RunTSNE</p>
+<p>RunUMAP</p>
+<pre class="r"><code>rm(list = ls())
+library(Seurat)
+library(tidyverse)
+library(stringr)
+library(patchwork)
+load(&quot;srt3_SCT_final.Rda&quot;)
+dim(srt3_all)
+
+# PCA分析
+srt3_all &lt;- RunPCA(object = srt3_all,
+                   npcs = 50,
+                   rev.pca = FALSE,
+                   weight.by.var = TRUE,
+                   verbose = TRUE, # 输出特定PC值的特征基因
+                   ndims.print = 1:5, # 输出前5个PC值的特征基因
+                   nfeatures.print = 30, # 输出每个PC值的30个特征基因
+                   reduction.key = &quot;PC_&quot;)
+
+srt3_all &lt;- RunPCA(srt3_all)
+
+ElbowPlot(srt3_all,
+          ndims = 50) # 寻找对细胞差异贡献度较大的主成分，
+
+# 展示降维特征及其特征基因的热图
+DimHeatmap(object = srt3_all, 
+           reduction = &quot;pca&quot;, 
+           dims = c(1:5),
+           nfeatures = 30,
+           disp.min = -2.5,
+           balanced = TRUE,
+           projected = FALSE,
+           fast = TRUE,
+           raster = TRUE,
+           slot = &quot;scale.data&quot;,
+           combine = TRUE)
+
+# 按照分组观察是否具有批次效应
+p1 &lt;- DimPlot(object = srt3_all, 
+              reduction = &quot;pca&quot;, 
+              group.by = &quot;Group&quot;,
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = &quot;black&quot;,
+              label.box = TRUE,
+              sizes.highlight = 1)
+p1
+# 按照细胞周期阶段观察是否具有批次效应
+p2 &lt;- DimPlot(object = srt3_all, 
+              reduction = &quot;pca&quot;,
+              group.by = &quot;Phase&quot;,
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = &quot;black&quot;,
+              label.box = TRUE,
+              sizes.highlight = 1)
+p2
+
+# t-SNE分析，基于PCA分析结果进行非线性降维分析
+srt3_all &lt;- RunTSNE(srt3_all, 
+                    dims = 1:19) 
+p3 &lt;- DimPlot(object = srt3_all, 
+              reduction = &quot;tsne&quot;, 
+              group.by = &quot;Group&quot;,
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = &quot;black&quot;,
+              label.box = TRUE,
+              sizes.highlight = 1)
+p3
+
+p4 &lt;- DimPlot(object = srt3_all, 
+              reduction = &quot;tsne&quot;, 
+              group.by = &quot;Phase&quot;,
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = &quot;black&quot;,
+              label.box = TRUE,
+              sizes.highlight = 1)
+p4
+# UMAP分析，t-SNE的完美替代品，速度快，结果解释多
+srt3_all &lt;- RunUMAP(srt3_all, 
+                    dims = 1:19)
+p5 &lt;- DimPlot(object = srt3_all, 
+              reduction = &quot;umap&quot;, 
+              group.by = &quot;Group&quot;,
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = &quot;black&quot;,
+              label.box = TRUE,
+              sizes.highlight = 1)
+p5
+
+p6 &lt;- DimPlot(object = srt3_all, 
+              reduction = &quot;umap&quot;, 
+              group.by = &quot;Phase&quot;,
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = &quot;black&quot;,
+              label.box = TRUE,
+              sizes.highlight = 1)
+p6
+
+# 合并三种降维方法的结果
+library(cowplot)
+plot_grid(p1, p3, p5,
+          labels = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;), 
+          nrow = 1,
+          align = &quot;h&quot;)
+
+library(patchwork)
+p2 + p4 + p6 + 
+  plot_layout(guides = &quot;collect&quot;) &amp; 
+  theme(legend.position = &quot;bottom&quot;)
+# 从上面结果看，未见明显批次效应
+
+# 检查线粒体比例是否为协变量
+# FeaturePlot(srt3_all, 
+#             reduction = &quot;umap&quot;, 
+#             features = &quot;percent.mt&quot;)
+# 展示特定基因
+FeaturePlot(srt3_all, 
+            reduction = &quot;umap&quot;, 
+            features = &quot;LIPF&quot;)
+
+</code></pre>
+</div>
+<div id="聚类" class="section level1">
+<h1>聚类</h1>
+<pre class="r"><code># KNN聚类法
+srt3_all &lt;- FindNeighbors(srt3_all,
+                          k.param = 20,
+                          dims = 1:19)
+srt3_all &lt;- FindClusters(srt3_all,
+                         resolution = 0.8, # 最重要参数，该值越大，cluster 越多
+                         method = &quot;igraph&quot;, # 根据结果调整
+                         algorithm = 1, # 根据结果调整&#39;
+                         random.seed = 2021) 
+
+table(srt3_all@meta.data$seurat_clusters)
+DimPlot(object = srt3_all,
+        group.by = &quot;seurat_clusters&quot;,
+        reduction = &quot;pca&quot;,
+        label = TRUE)
+
+PCAPlot(object = srt3_all,
+        group.by = &quot;seurat_clusters&quot;,
+        pt.size = 2, 
+        label = TRUE)
+
+TSNEPlot(object = srt3_all,
+         group.by = &quot;seurat_clusters&quot;,
+         pt.size = 2, 
+         label = TRUE)    
+
+UMAPPlot(object = srt3_all,
+         group.by = &quot;seurat_clusters&quot;,
+         pt.size = 2, 
+         label = TRUE)
+save(srt3_all, file = &quot;srt3_all_cluster.Rda&quot;)
+</code></pre>
+</div>
+<div id="细胞注释" class="section level1">
+<h1>细胞注释</h1>
+<pre class="r"><code>rm(list = ls())
+library(tidyverse)
+library(reshape2)
+library(patchwork)
+library(Seurat)
+
+load(file = &quot;srt3_all_cluster.Rda&quot;)
+
+# 从CellMarker下载细胞注释表格
+# CellMarker：http://bio-bigdata.hrbmu.edu.cn/CellMarker/index.jsp
+cell_marker &lt;- read.csv(&quot;CellMarker.csv&quot;)
+cell_marker &lt;- cell_marker[c(3, 5)]
+?separate_rows
+cell_marker &lt;- cell_marker %&gt;%
+  separate_rows(Cell.Marker, sep = &quot;, &quot;) %&gt;%
+  na.omit() %&gt;%
+  distinct() %&gt;% 
+  arrange(Cell.Type) 
+View(cell_marker)
+cell_marker$Cell.Marker &lt;- str_trim(cell_marker$Cell.Marker, &quot;left&quot;) 
+
+p1 &lt;- DimPlot(srt3_all, 
+              reduction = &quot;umap&quot;, # pca, umap, tsne
+              group.by  = &quot;seurat_clusters&quot;,
+              label = T)
+
+p2 &lt;- DotPlot(srt3_all, 
+              features = unique(cell_marker$Cell.Marker)) +
+  theme(axis.text = element_text(size = 8,
+                                 angle = 90,
+                                 hjust = 1))
+p1 + p2
+
+p3 &lt;- FeaturePlot(srt3_all, 
+                  reduction = &quot;umap&quot;, 
+                  features = c(&quot;ALDH1A1&quot;), 
+                  label = TRUE) 
+p3
+p1 + p3
+
+
+range(srt3_all@assays$integrated@scale.data)
+
+# 添加 cell type
+Cell_type &lt;- c(&quot;0&quot; = &quot;Other Cells&quot;,
+               &quot;1&quot; = &quot;Cancer Stem Cells&quot;)
+srt3_all[[&#39;cell_type&#39;]] &lt;- unname(Cell_type[srt3_all@meta.data$seurat_clusters])
+
+DimPlot(srt3_all, 
+        reduction = &quot;umap&quot;, 
+        group.by = &quot;cell_type&quot;,
+        label = TRUE, 
+        pt.size = 2) + 
+  NoLegend()
+
+# VlnPlot(srt3_all, 
+#         features = c(&quot;ALDH1A1&quot;))
+
+save(srt3_all, file = &quot;srt3_all_cell.Rda&quot;)
+
+###SingleR注释###
+library(SingleR)
+library(celldex)
+library(BiocParallel)
+# celldex: https://github.com/LTLA/celldex/tree/master/R
+# ref &lt;- BlueprintEncodeData() 
+# ref &lt;- MouseRNAseqData() 
+# ref &lt;- ImmGenData() 
+# ref &lt;- DatabaseImmuneCellExpressionData() 
+# ref &lt;- NovershternHematopoieticData() 
+# ref &lt;- MonacoImmuneData()
+# ref &lt;- celldex::HumanPrimaryCellAtlasData()
+# save(ref, file = &quot;HumanPrimaryCellAtlasData.Rda&quot;)
+load(&quot;HumanPrimaryCellAtlasData.Rda&quot;)
+
+singler &lt;- SingleR(test = srt3_all@assays$RNA@data,
+                   ref = ref,
+                   labels = ref$label.main,
+                   clusters = srt3_all@meta.data$seurat_clusters,
+                   fine.tune = TRUE, 
+                   BPPARAM = SnowParam(8))
+# 查看细胞类型
+singler$pruned.labels
+
+#绘制带cell label的tsne和umap图
+cell_ids &lt;- singler$pruned.labels
+names(cell_ids) &lt;- levels(srt3_all)
+levels(srt3_all)
+
+srt3_all &lt;- RenameIdents(srt3_all, cell_ids)
+levels(srt3_all)
+
+TSNEPlot(object = srt3_all, pt.size = 0.5, label = TRUE)  
+UMAPPlot(object = srt3_all, pt.size = 0.5, label = TRUE)
+
+# 导出注释结果
+clusterAnn &lt;- singler %&gt;%
+  as.data.frame() %&gt;%
+  rownames_to_column(&quot;id&quot;) %&gt;%
+  dplyr::select(id, labels)
+write_tsv(clusterAnn, &quot;cluster_annotation.txt&quot;)
+
+singler2 &lt;- SingleR(test = srt3_all@assays$RNA@counts, 
+                    ref = ref, 
+                    labels = ref$label.main)
+cellAnn &lt;- singler2 %&gt;%
+  as.data.frame() %&gt;%
+  rownames_to_column(&quot;id&quot;) %&gt;%
+  dplyr::select(id, labels)
+write_tsv(cellAnn, &quot;cell_annotation.txt&quot;)
+
+# 将数据写入metadata文件
+singleR_type &lt;- srt3_all@active.ident
+srt3_all[[&#39;singleR_type&#39;]] &lt;- unname(singleR_type[rownames(srt3_all@meta.data)])
+
+</code></pre>
+<p>最近发现的读取数据好用的包包 rio :一站式导入导出几乎所有格式的数据，import()/export(),读取速度感人。</p>
+</div>

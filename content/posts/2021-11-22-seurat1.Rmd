@@ -1,0 +1,606 @@
+---
+title: "单细胞数据处理Seurat包学习（1）"
+author: "Zhaojn"
+date: "2021-11-22"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+# 构建Seurat
+
+## 示例一致的10X的数据格式
+
+数据处理成seurat包的输入格式，Seurat直接读取文件夹，文件夹包括三个文件，两个注释信息，一个matrix
+
+1 barcodes.tsv
+
+2 genes.tsv
+
+3 matrix.mtx
+
+
+
+## 两个 key functions
+
+Read10X
+
+CreateSeuratObject
+
+
+
+
+
+## 单细胞数据第一种数据类型构建Seurat对象
+
+```R
+scRNA_data1 <- Read10X(data.dir = "data/scType1/")
+
+# 构建Seurat对象
+srt1 <- CreateSeuratObject(counts = scRNA_data1, 
+                            # 表达矩阵，可以是稀疏矩阵，也可以是普通矩阵
+                            min.cells = 3, # 去除在小于3个细胞中表达的基因
+                            min.features = 200 # 去除只有200个以下基因表达 的细胞
+)
+
+
+# c查看数据类型
+typeof(srt1) # "S4"
+class(srt1) # "dgCMatrix"
+
+# 计算稀疏矩阵的内存大小
+sparse.size <- object.size(x = srt1)
+sparse.size
+
+# 查看稀疏矩阵数据
+srt1@assays[["RNA"]][1:10, 1:4]
+head(srt1@meta.data)
+```
+
+## 单细胞数据第二种数据类型构建Seurat对象
+
+```R
+rm(list = ls())
+scRNA_data2 <- read.table("datascType2/GSE118389_counts_rsem.txt")
+scRNA_data2[1:4,1:4]
+dim(scRNA_data2) 
+
+#原始矩阵有1534个cell，21785个gene
+SRT2 <- read.table("data/scType2/SraRunTable.txt", sep = ",", header = T)#这里可以用rio包，读取速度感人
+dim(SRT2)
+head(SRT2)
+# 通过观察，表达矩阵scRNA_data2：1534个cell，21785个gene
+# 通过观察SRT2了解到表达矩阵scRNA_data2的细胞名在metadata数据中没找到，那么就到Seriex matrix中寻找对应数据，发现了有细胞名对应的GSM编号，因此提取这两列出来做处理
+Cell_ID <- read.table("data/scType2/cellID.txt", sep = "\t", header = T)
+head(Cell_ID)
+
+# 将样本名合并到metadata数据中
+SRT2_1 <- SRT2 %>%
+  inner_join(Cell_ID, "Sample.Name")
+head(SRT2_1) # 保留数据备用
+write_tsv(SRT2_1, "SRT2_1.txt")
+
+# 构建metadata只需要细胞名称和对应的GSM编号即可，也就是我们从Seriex matrix提取的两列数据
+# 匹配表达矩阵和Cell_ID中的细胞名称，让两者顺序一致
+scRNA_data2_1 <- scRNA_data2[,Cell_ID$MTX.name]
+table(Cell_ID$MTX.name == colnames(scRNA_data2_1))
+Cell_ID <- column_to_rownames(Cell_ID, "MTX.name")
+# 两者一致后就可以构建Seurat对象
+srt2 <- CreateSeuratObject(counts = scRNA_data2_1,
+                           meta.data = Cell_ID,
+                           min.cells = 3, 
+                           min.features = 200)
+
+```
+
+## 单细胞数据第三种数据类型构建Seurat对象
+
+```R
+# 保留Tumor组的数据进行合并
+rm(list = ls())
+
+# 引用包
+library(limma)
+setwd("")     #设置工作目录
+files <- dir()      
+files
+# 获取目录下所有文件
+files <- grep("txt$", files, value=T)      # 提取.txt结尾的文件
+files
+
+# 数据合并
+scRNA_data3 <- data.frame()
+for(i in 1:length(files)){
+  inputFile <- files[i]
+  # 读取输入文件，并对输入文件进行整理
+  rt <- read.table(inputFile, header=T, sep="\t")
+  rownames(rt) = rt[,1]
+  rt = rt[,2:ncol(rt)]
+  
+  #数据合并
+  if(ncol(scRNA_data3) == 0){
+    scRNA_data3 = rt
+  }else{
+    scRNA_data3 = cbind(scRNA_data3, rt)
+  }
+}
+
+dim(scRNA_data3) # 306个细胞，24153个基因
+
+# 写出数据
+
+scRNA_data3_Tumor <- rownames_to_column(scRNA_data3, "ID")
+write_tsv(scRNA_data3_Tumor, "scRNA_data3_Tumor.txt")
+
+# 同样方法处理对照组数据
+rm(list = ls())
+
+# 引用包
+setwd("")     #设置工作目录
+files <- dir()      
+files
+# 获取目录下所有文件
+files <- grep("txt$", files, value=T)      # 提取.txt结尾的文件
+files
+
+# 数据合并
+scRNA_data3 <- data.frame()
+for(i in 1:length(files)){
+  inputFile <- files[i]
+  # 读取输入文件，并对输入文件进行整理
+  rt <- read.table(inputFile, header=T, sep="\t")
+  rownames(rt) = rt[,1]
+  rt = rt[,2:ncol(rt)]
+  
+  #数据合并
+  if(ncol(scRNA_data3) == 0){
+    scRNA_data3 = rt
+  }else{
+    scRNA_data3 = cbind(scRNA_data3, rt)
+  }
+}
+
+dim(scRNA_data3) # 306个细胞，24153个基因
+
+# 写出数据
+
+scRNA_data3_Control <- rownames_to_column(scRNA_data3, "ID")
+write_tsv(scRNA_data3_Control, "scRNA_data3_Control.txt")
+
+# 将两个矩阵转移到scType3文件夹下方进行后续处理
+rm(list = ls())
+
+setwd("")     #设置工作目录
+scRNA_data3_Control <- read.table("data/scType3/scRNA_data3_Control.txt", header = T, row.names = 1)
+
+srt3_1 <- CreateSeuratObject(counts = scRNA_data3_Control,
+                           min.cells = 3, 
+                           min.features = 200)
+
+scRNA_data3_Tumor <- read.table("data/scType3/scRNA_data3_Tumor.txt", header = T, row.names = 1)
+
+srt3_2 <- CreateSeuratObject(counts = scRNA_data3_Tumor,
+                             min.cells = 3, 
+                             min.features = 200)
+srt3_list <- list(Control = srt3_1, 
+                  Tumor = srt3_2)
+
+```
+
+raw data, 
+
+matrix, 
+
+Rdata
+
+ 
+
+
+
+------
+
+
+
+
+
+# 质控
+
+PercentageFeatureSet 算一下某个自定义基因集在各个细胞中的比例
+
+```R
+# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
+#增加percent.mt这一列
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+
+# Show QC metrics for the first 5 cells，增加后的矩阵
+head(pbmc@meta.data, 5)#show 前5个细胞
+
+# Visualize QC metrics as a violin plot可视化
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
+```
+
+ FeatureScatter
+
+```R
+# FeatureScatter is typically used to visualize feature-feature relationships, but can be used
+# for anything calculated by the object, i.e. columns in object metadata, PC scores etc.
+#两个特征之间的关系
+plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2#
+```
+
+
+
+```R
+#过滤具有超过 2500 或少于 200 feature
+#过滤线粒体计数小于5%的细胞
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+```
+
+
+
+# 对数据进行标准化
+
+NormalizeData
+
+```R
+pbmc <- NormalizeData(pbmc, normalization.method = "LogNormalize", scale.factor = 10000)
+```
+
+
+
+# 筛选高变基因（找差异）
+
+它们在某些细胞中高度表达，而在其他细胞中表达低
+
+FindVariableFeatures
+
+```R
+pbmc <- FindVariableFeatures(pbmc, 
+                             selection.method = "vst", 
+                             nfeatures = 2000)
+
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(pbmc), 10)
+
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(pbmc)
+plot2 <- LabelPoints(plot = plot1, 
+                     points = top10, 
+                     repel = TRUE)
+plot1 + plot2
+纵坐标是方差，横坐标是平均表达量，红色的点就代表了高变基因，黑色的点代表了变化不大的基因
+```
+
+
+
+# 降维
+
+降维有三种
+
+线性PCA
+
+非线性
+
+t-SNE分析，基于PCA分析结果进行非线性降维分析
+
+UMAP分析，t-SNE的完美替代品，速度快
+
+RunPCA
+
+RunTSNE
+
+RunUMAP
+
+```R
+rm(list = ls())
+library(Seurat)
+library(tidyverse)
+library(stringr)
+library(patchwork)
+load("srt3_SCT_final.Rda")
+dim(srt3_all)
+
+# PCA分析
+srt3_all <- RunPCA(object = srt3_all,
+                   npcs = 50,
+                   rev.pca = FALSE,
+                   weight.by.var = TRUE,
+                   verbose = TRUE, # 输出特定PC值的特征基因
+                   ndims.print = 1:5, # 输出前5个PC值的特征基因
+                   nfeatures.print = 30, # 输出每个PC值的30个特征基因
+                   reduction.key = "PC_")
+
+srt3_all <- RunPCA(srt3_all)
+
+ElbowPlot(srt3_all,
+          ndims = 50) # 寻找对细胞差异贡献度较大的主成分，
+
+# 展示降维特征及其特征基因的热图
+DimHeatmap(object = srt3_all, 
+           reduction = "pca", 
+           dims = c(1:5),
+           nfeatures = 30,
+           disp.min = -2.5,
+           balanced = TRUE,
+           projected = FALSE,
+           fast = TRUE,
+           raster = TRUE,
+           slot = "scale.data",
+           combine = TRUE)
+
+# 按照分组观察是否具有批次效应
+p1 <- DimPlot(object = srt3_all, 
+              reduction = "pca", 
+              group.by = "Group",
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = "black",
+              label.box = TRUE,
+              sizes.highlight = 1)
+p1
+# 按照细胞周期阶段观察是否具有批次效应
+p2 <- DimPlot(object = srt3_all, 
+              reduction = "pca",
+              group.by = "Phase",
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = "black",
+              label.box = TRUE,
+              sizes.highlight = 1)
+p2
+
+# t-SNE分析，基于PCA分析结果进行非线性降维分析
+srt3_all <- RunTSNE(srt3_all, 
+                    dims = 1:19) 
+p3 <- DimPlot(object = srt3_all, 
+              reduction = "tsne", 
+              group.by = "Group",
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = "black",
+              label.box = TRUE,
+              sizes.highlight = 1)
+p3
+
+p4 <- DimPlot(object = srt3_all, 
+              reduction = "tsne", 
+              group.by = "Phase",
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = "black",
+              label.box = TRUE,
+              sizes.highlight = 1)
+p4
+# UMAP分析，t-SNE的完美替代品，速度快，结果解释多
+srt3_all <- RunUMAP(srt3_all, 
+                    dims = 1:19)
+p5 <- DimPlot(object = srt3_all, 
+              reduction = "umap", 
+              group.by = "Group",
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = "black",
+              label.box = TRUE,
+              sizes.highlight = 1)
+p5
+
+p6 <- DimPlot(object = srt3_all, 
+              reduction = "umap", 
+              group.by = "Phase",
+              dims = c(1,2),
+              shuffle = TRUE,
+              label = TRUE,
+              label.size = 4,
+              label.color = "black",
+              label.box = TRUE,
+              sizes.highlight = 1)
+p6
+
+# 合并三种降维方法的结果
+library(cowplot)
+plot_grid(p1, p3, p5,
+          labels = c("A", "B", "C"), 
+          nrow = 1,
+          align = "h")
+
+library(patchwork)
+p2 + p4 + p6 + 
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "bottom")
+# 从上面结果看，未见明显批次效应
+
+# 检查线粒体比例是否为协变量
+# FeaturePlot(srt3_all, 
+#             reduction = "umap", 
+#             features = "percent.mt")
+# 展示特定基因
+FeaturePlot(srt3_all, 
+            reduction = "umap", 
+            features = "LIPF")
+
+
+```
+
+
+
+# 聚类
+
+
+
+```R
+# KNN聚类法
+srt3_all <- FindNeighbors(srt3_all,
+                          k.param = 20,
+                          dims = 1:19)
+srt3_all <- FindClusters(srt3_all,
+                         resolution = 0.8, # 最重要参数，该值越大，cluster 越多
+                         method = "igraph", # 根据结果调整
+                         algorithm = 1, # 根据结果调整'
+                         random.seed = 2021) 
+
+table(srt3_all@meta.data$seurat_clusters)
+DimPlot(object = srt3_all,
+        group.by = "seurat_clusters",
+        reduction = "pca",
+        label = TRUE)
+
+PCAPlot(object = srt3_all,
+        group.by = "seurat_clusters",
+        pt.size = 2, 
+        label = TRUE)
+
+TSNEPlot(object = srt3_all,
+         group.by = "seurat_clusters",
+         pt.size = 2, 
+         label = TRUE)    
+
+UMAPPlot(object = srt3_all,
+         group.by = "seurat_clusters",
+         pt.size = 2, 
+         label = TRUE)
+save(srt3_all, file = "srt3_all_cluster.Rda")
+
+```
+
+
+
+
+
+# 细胞注释
+
+
+
+```R
+rm(list = ls())
+library(tidyverse)
+library(reshape2)
+library(patchwork)
+library(Seurat)
+
+load(file = "srt3_all_cluster.Rda")
+
+# 从CellMarker下载细胞注释表格
+# CellMarker：http://bio-bigdata.hrbmu.edu.cn/CellMarker/index.jsp
+cell_marker <- read.csv("CellMarker.csv")
+cell_marker <- cell_marker[c(3, 5)]
+?separate_rows
+cell_marker <- cell_marker %>%
+  separate_rows(Cell.Marker, sep = ", ") %>%
+  na.omit() %>%
+  distinct() %>% 
+  arrange(Cell.Type) 
+View(cell_marker)
+cell_marker$Cell.Marker <- str_trim(cell_marker$Cell.Marker, "left") 
+
+p1 <- DimPlot(srt3_all, 
+              reduction = "umap", # pca, umap, tsne
+              group.by  = "seurat_clusters",
+              label = T)
+
+p2 <- DotPlot(srt3_all, 
+              features = unique(cell_marker$Cell.Marker)) +
+  theme(axis.text = element_text(size = 8,
+                                 angle = 90,
+                                 hjust = 1))
+p1 + p2
+
+p3 <- FeaturePlot(srt3_all, 
+                  reduction = "umap", 
+                  features = c("ALDH1A1"), 
+                  label = TRUE) 
+p3
+p1 + p3
+
+
+range(srt3_all@assays$integrated@scale.data)
+
+# 添加 cell type
+Cell_type <- c("0" = "Other Cells",
+               "1" = "Cancer Stem Cells")
+srt3_all[['cell_type']] <- unname(Cell_type[srt3_all@meta.data$seurat_clusters])
+
+DimPlot(srt3_all, 
+        reduction = "umap", 
+        group.by = "cell_type",
+        label = TRUE, 
+        pt.size = 2) + 
+  NoLegend()
+
+# VlnPlot(srt3_all, 
+#         features = c("ALDH1A1"))
+
+save(srt3_all, file = "srt3_all_cell.Rda")
+
+###SingleR注释###
+library(SingleR)
+library(celldex)
+library(BiocParallel)
+# celldex: https://github.com/LTLA/celldex/tree/master/R
+# ref <- BlueprintEncodeData() 
+# ref <- MouseRNAseqData() 
+# ref <- ImmGenData() 
+# ref <- DatabaseImmuneCellExpressionData() 
+# ref <- NovershternHematopoieticData() 
+# ref <- MonacoImmuneData()
+# ref <- celldex::HumanPrimaryCellAtlasData()
+# save(ref, file = "HumanPrimaryCellAtlasData.Rda")
+load("HumanPrimaryCellAtlasData.Rda")
+
+singler <- SingleR(test = srt3_all@assays$RNA@data,
+                   ref = ref,
+                   labels = ref$label.main,
+                   clusters = srt3_all@meta.data$seurat_clusters,
+                   fine.tune = TRUE, 
+                   BPPARAM = SnowParam(8))
+# 查看细胞类型
+singler$pruned.labels
+
+#绘制带cell label的tsne和umap图
+cell_ids <- singler$pruned.labels
+names(cell_ids) <- levels(srt3_all)
+levels(srt3_all)
+
+srt3_all <- RenameIdents(srt3_all, cell_ids)
+levels(srt3_all)
+
+TSNEPlot(object = srt3_all, pt.size = 0.5, label = TRUE)  
+UMAPPlot(object = srt3_all, pt.size = 0.5, label = TRUE)
+
+# 导出注释结果
+clusterAnn <- singler %>%
+  as.data.frame() %>%
+  rownames_to_column("id") %>%
+  dplyr::select(id, labels)
+write_tsv(clusterAnn, "cluster_annotation.txt")
+
+singler2 <- SingleR(test = srt3_all@assays$RNA@counts, 
+                    ref = ref, 
+                    labels = ref$label.main)
+cellAnn <- singler2 %>%
+  as.data.frame() %>%
+  rownames_to_column("id") %>%
+  dplyr::select(id, labels)
+write_tsv(cellAnn, "cell_annotation.txt")
+
+# 将数据写入metadata文件
+singleR_type <- srt3_all@active.ident
+srt3_all[['singleR_type']] <- unname(singleR_type[rownames(srt3_all@meta.data)])
+
+
+```
+
+最近发现的读取数据好用的包包 rio :一站式导入导出几乎所有格式的数据，import()/export(),读取速度感人。
+
