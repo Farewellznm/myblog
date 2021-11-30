@@ -1,5 +1,5 @@
 ---
-title: "单细胞数据处理Seurat包学习（1）"
+title: "Seurat包（1）：标准流程"
 author: "Zhaojn"
 date: "2021-11-22"
 category: 组学分析
