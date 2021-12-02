@@ -1,0 +1,24 @@
+---
+title: "Seurat包（3）：Integrated assay vs RNA assay "
+author: "LHS"
+date: "2021-12-02"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+
+问：单细胞Seurat分析时，分别在什么情况下选择Integrated assay 和RNA assay，以及这两者的差异 ？
+
+答：
+
+（1）	为了简单起见，使用Integrated assay 当比较不同数据集的`细胞状态`，如聚类、可视化和拟时序分析。
+
+（2）	使用RNA assay ，研究`基因`在不同clusters、trajectories和condition的变化。
+
+官方提供了一个例子，他们使用integrated assay 比较不同condition的细胞类型，使用RNA assay 去定义marker基因等。
+
+具体例子如下：
+
+https://satijalab.org/seurat/v3.0/immune_alignment.html
+
