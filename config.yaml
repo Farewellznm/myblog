@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 至若春和景明，波澜不惊，上下天光，一碧万顷，沙鸥翔集，锦鳞游泳，岸芷汀兰，郁郁青青；而或长烟一空，皓月千里，浮光耀金，静影沈璧，渔歌互答，此乐何极！
+  description: 【逃离】倒计时。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 

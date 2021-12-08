@@ -1,0 +1,95 @@
+---
+title: "可视化（1）：云雨图 "
+author: "LHS"
+date: "2021-12-08"
+category: 可视化
+tags: 
+- 可视化
+output: html_document
+---
+
+云雨图（RainCloudPlot）可以展示分布、散点、箱线图三种图像为基础的复合可视化：
+
+# 调用现成的工具
+
+`raincloudplots`是基于`ggplot2`里面的一个包。
+
+```{R message=FALSE}
+if (!require(remotes)) {
+    install.packages("remotes")
+}
+remotes::install_github('jorvlan/raincloudplots')
+library(raincloudplots)
+```
+生成一些数据：
+```{R}
+set.seed(3)
+prior <- replicate(n = 3, rnorm(n = 500, mean = 65, sd = 5))
+final_single <- rnorm(n = 500, mean = 72, sd = 6)
+final_multi_consistent <- rnorm(n = 500, mean = 75, sd = 7)
+final_multi_inconsistent <- rnorm(n = 500, mean = 55, sd = 9)
+```
+预处理数据
+```{R}
+df_2x3 <- data_2x2(
+  array_1 = prior[,1],
+  array_2 = final_single,
+  array_3 = prior[,2],
+  array_4 = final_multi_consistent,
+  array_5 = prior[,3],
+  array_6 = final_multi_inconsistent,
+  labels = (c('Prior Beliefs','Final Beliefs')),
+  jit_distance = .09,
+  jit_seed = 321) 
+```
+绘图函数
+```{R}
+colors <- rep(c("dodgerblue", "darkorange"), 3) #choose colors 
+
+raincloud_2x3_repmes(
+  data = df_2x3,
+  colors = colors,
+  fills = colors,
+  size = 1,
+  alpha = .6,
+  ort = "h") + #set to v for vertical plot
+  
+  scale_x_continuous(
+    breaks = c(1,2,3), 
+    limits = c(0.8, 4.3), 
+    labels = rep("", 3)) +
+  ylab("Rated Beliefs") +
+  
+  annotate(geom = "text", 
+           label = "Single-Analyst", 
+           x = 1.5, y = 42) + 
+  annotate(geom = "text", 
+           label = "Multi-Analyst: Consistent", 
+           x = 2.5, y = 38) + 
+  annotate(geom = "text", 
+           label = "Multi-Analyst: Inconsistent",
+           x = 3.9, y = 38) + 
+  annotate(geom = "text", 
+           label = "Prior Beliefs", 
+           x = 4.2, y = 55, size = 5, 
+           color = "dodgerblue") + 
+  annotate(geom = "text", 
+           label = "vs.", 
+           x = 4.2, y = 66, size = 5) + 
+  annotate(geom = "text", 
+           label = "Final Beliefs", 
+           x = 4.2, y = 77, size = 5, 
+           color = "darkorange") + 
+  
+  theme_classic() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text = element_text(size = 9),
+        axis.title.y = element_blank())
+```
+
+
+
+
+# Ref 
+
+Allen M, Poggiali D, Whitaker K et al. Raincloud plots: a multi-platform tool for robust data visualization [version 2; peer review: 2 approved]. Wellcome Open Res 2021, 4:63. DOI: 10.12688/wellcomeopenres.15191.2
