@@ -1,9 +1,9 @@
 {
   "list": [
     {
-      "name":"科研项目",
+      "name":"我在研究生期间做了一个科研项目",
       "url":"https://www.sciencedirect.com/science/article/pii/S2372770521000838",
-      "desc":"结直肠癌单细胞图谱的动态网络生物标志物分析"
+      "desc":"使用动态网络生物标志物的新方法来挖掘结直肠癌免疫过程中的标志物。"
     }
   ]
 }

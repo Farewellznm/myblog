@@ -1,0 +1,218 @@
+---
+title: "Untitled"
+author: "zhaojn"
+date: "12/10/2021"
+output: html_document
+---
+
+```{r}
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install()
+# BiocManager::install(c("BiocGenerics",
+#                        "DelayedArray",
+#                        "DelayedMatrixStats",
+#                        "limma", 
+#                        "S4Vectors",
+#                        "SingleCellExperiment",
+#                        "SummarizedExperiment",
+#                        "batchelor"))
+# install.packages("devtools")
+# devtools::install_github('cole-trapnell-lab/leidenbase')
+# devtools::install_github('cole-trapnell-lab/monocle3')
+# 安装时遇到报错可查询网站：https://cole-trapnell-lab.github.io/monocle3/docs/installation/
+# monocle3: https://cole-trapnell-lab.github.io/monocle3/
+
+library(Seurat)
+library(monocle3)
+library(tidyverse)
+library(patchwork)
+load("alldata_cell.Rda")
+DimPlot(object = alldata, 
+        reduction = "umap", 
+        group.by = "cell_type",
+        dims = c(1,2),
+        shuffle = TRUE,
+        label = TRUE,
+        label.size = 4,
+        label.color = "black",
+        label.box = TRUE,
+        sizes.highlight = 1)
+##创建CDS对象并预处理数据
+expression_matrix <- GetAssayData(alldata, assay = "RNA", slot = "count")
+cell_metadata <- alldata@meta.data
+gene_metadata <- data.frame(gene_id = rownames(expression_matrix),
+                            gene_short_name = rownames(expression_matrix))
+rownames(gene_metadata) <- gene_metadata$gene_short_name
+
+# 构建cds对象
+cds <- new_cell_data_set(expression_matrix,
+                         cell_metadata = cell_metadata,
+                         gene_metadata = gene_metadata)
+
+# preprocess_cds函数相当于seurat中NormalizeData + ScaleData + RunPCA
+cds <- preprocess_cds(cds,
+                      num_dim = 50)
+# umap降维
+cds <- reduce_dimension(cds, 
+                        preprocess_method = "PCA")
+
+p1 <- plot_cells(cds, 
+                 reduction_method = "UMAP",
+                 color_cells_by = "cell_type")
+
+# 从seurat导入整合过的umap坐标
+cds.embed <- cds@int_colData$reducedDims$UMAP
+int.embed <- Embeddings(alldata, reduction = "umap")
+int.embed <- int.embed[rownames(cds.embed),]
+cds@int_colData$reducedDims$UMAP <- int.embed
+p2 <- plot_cells(cds,
+                 reduction_method = "UMAP",
+                 color_cells_by = "cell_type") 
+
+
+# Monocle3聚类分区
+# 区分不同轨迹
+cds <- cluster_cells(cds)
+p1 <- plot_cells(cds, 
+                 show_trajectory_graph = FALSE) +
+  ggtitle("label by clusterID")
+p1
+p2 <- plot_cells(cds, 
+                 color_cells_by = "partition", 
+                 show_trajectory_graph = FALSE) + 
+  ggtitle("label by partitionID")
+p2
+p3 <- plot_cells(cds,
+                 show_trajectory_graph = FALSE) 
+p3
+# 识别轨迹
+cds <- learn_graph(cds)
+p4 <- plot_cells(cds, 
+                 label_groups_by_cluster = FALSE, 
+                 label_leaves = FALSE, 
+                 label_branch_points = FALSE)
+p4
+
+
+# 细胞按拟时排序
+# 官网给出了一个函数，这里定义了一个time_bin，选择了最早的时间点区间。
+# a helper function to identify the root principal points:
+get_earliest_principal_node <- function(cds, time_bin = "T Cells"){
+  cell_ids <- which(colData(cds)[, "cell_type"] == time_bin)
+  
+  closest_vertex <-cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+  closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
+  root_pr_nodes <-
+    igraph::V(principal_graph(cds)[["UMAP"]])$name[as.numeric(names(which.max(table(closest_vertex[cell_ids,]))))]
+  
+  root_pr_nodes
+}
+cds <- order_cells(cds, root_pr_nodes=get_earliest_principal_node(cds))
+
+plot_cells(cds,
+           color_cells_by = "pseudotime",
+           label_cell_groups = FALSE,
+           label_leaves = FALSE,
+           label_branch_points = FALSE,
+           graph_label_size = 1.5,
+           group_label_size = 4,
+           cell_size = 1.5)
+# 聚类分区
+cds <- cluster_cells(cds)
+cds_cluster <- cds@clusters@listData[["UMAP"]][["clusters"]]
+head(cds@colData)
+colData(cds)$cds_cluster <- as.character(clusters(cds))
+
+# 查找标记基因
+marker_test_res <- top_markers(cds, 
+                               group_cells_by = "cds_cluster", 
+                               reference_cells = 1000, 
+                               cores = 8)
+head(marker_test_res)
+# fraction_expressing表达分数
+plot_cells(cds, 
+           genes = c("RPL3", "GTF3A"))
+
+top_specific_markers <- marker_test_res %>%
+  filter(marker_test_q_value < 0.01 & 
+           specificity >= 0.2) %>%
+  group_by(cell_group) %>%
+  top_n(5, pseudo_R2)
+
+# 提取marker名称
+top_specific_markers1 <- top_specific_markers %>% 
+  group_by(gene_short_name) %>%
+  filter(n() == 1)
+
+top_specific_marker_ids <- top_specific_markers1 %>%
+  pull(gene_id) # pull = $符号
+
+# 可视化
+plot_genes_by_group(cds,
+                    top_specific_marker_ids,
+                    group_cells_by = "cds_cluster",
+                    ordering_type = "maximal_on_diag",
+                    max.size = 3)
+# 生成markers文件
+generate_garnett_marker_file(top_specific_markers1, file="./marker_file.txt")
+
+marker_file <- read_tsv("marker_file.txt")
+
+# 进行细胞注释
+# 查找文献进行手动注释
+# colData(cds)$assigned_cell_type <- as.character(partitions(cds))
+# colData(cds)$assigned_cell_type <- dplyr::recode(colData(cds)$cds_cluster,
+#                                                 "1" = "A cells",
+#                                                 "2" = "B cells",
+#                                                 "3" = "C cells",
+#                                                 "4" = "D cells",
+#                                                 "5" = "E cells",
+#                                                 "6" = "F cells")
+# plot_cells(cds,
+#            group_cells_by = "cluster", 
+#            color_cells_by = "assigned_cell_type")
+
+# 感兴趣基因表达量图
+ciliated_genes <- c("RPL21",
+                    "TIMP1",
+                    "C15orf48",
+                    "TYROBP",
+                    "FTL",
+                    "CCR7")
+
+plot_cells(cds,
+           genes  = ciliated_genes,
+           label_cell_groups = FALSE,
+           show_trajectory_graph = FALSE)
+# 寻找差异基因（只使用top_specific_marker_ids进行分析）
+ciliated_genes <- top_specific_marker_ids
+cds_subset <- cds[rowData(cds)$gene_short_name %in% ciliated_genes,]
+# 如果使用全部基因进行分析，则直接运行下面这一句
+gene_fits <- fit_models(cds_subset, model_formula_str = "~cell_type")
+# coefficient_table()函数从模型中提取结果
+fit_coefs <- coefficient_table(gene_fits)
+head(fit_coefs)
+table(fit_coefs$term)
+
+# 选择差异基因
+emb_time_terms <- fit_coefs %>%
+  filter(term == "cell_typeT Cells") %>% 
+  filter (q_value < 0.01) %>%
+  select(gene_short_name, term, q_value, estimate) 
+genes <- head(emb_time_terms)$gene_short_name
+plot_genes_violin(cds_subset[genes,],
+                  group_cells_by = "cell_type",
+                  ncol = 2) +
+  theme(axis.text.x = element_text(angle=45,
+                                   hjust=1))
+plot_genes_in_pseudotime(cds_subset[genes,],#object = cds_subset
+                         color_cells_by="pseudotime",
+                         min_expr=0.5)
+
+# 查看引用
+get_citations(cds)
+
+
+```
+

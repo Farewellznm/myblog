@@ -28,16 +28,16 @@ markup:
     ordered: no
     startLevel: 2
 params:
-  colortheme: classic
+  colortheme: light
   comments:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 【逃离】倒计时。
+  description: 大家好！2021年我顺利从华南理工大学硕士毕业啦。因为很多莫名奇妙的巧合，我来到上海工作啦。感受到了这座城市的小资，也体验过很多新的东西，第一次蹭饭第一次自己主厨，认识了一些新的朋友，度过了一阵阵难关，看完了一本本书。正如非常喜欢一句话，虽然我们只能看到前方很短的距离，但是已经看到有很多事情要做了。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
-  postsOnHomePage: 5
+  postsOnHomePage: 10
   projectsUrl: https://github.com/Farewellznm
   rss: yes
   show_updated: yes
