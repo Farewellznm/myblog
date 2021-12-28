@@ -1,5 +1,5 @@
 ---
-title: "单细胞转录组Seurat包Integrated assay 与 RNA assay 区别"
+title: "Seurat包Integrated assay与RNA assay 区别"
 author: "LHS"
 date: "2021-12-02"
 category: 组学分析
