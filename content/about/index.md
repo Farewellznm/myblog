@@ -18,12 +18,14 @@ https://bbruceyuan.github.io
 2、白夜无寐  
 研究生师兄；贡献了一篇RNAseq教程  
 https://www.jianshu.com/u/cf0181bb1a45  
-**网站**  
-1.NCBI的GEO数据库  
-https://www.ncbi.nlm.nih.gov/geoprofiles/?term=  
-2.B站学习  
-https://www.bilibili.com/  
-3.Rosalind  
-https://rosalind.info/problems/locations/  
-4.SciHub
-https://gfsoso.99lb.net/sci-hub.html
+3、Jiayuan Zhong  
+His research interest mainly focuseson developing computational approaches to detect the tipping points of nonlinear dynamical systems.  
+**网站资源**  
+1.数据库  
+[GEO](https://www.ncbi.nlm.nih.gov/geoprofiles/?term=),[stemmapper](http://stemmapper.sysbiolab.eu/)  
+2.学习资源  
+[B站](https://www.bilibili.com/),[菜鸟教程](https://www.runoob.com/)  
+3.编程乐园  
+[Rosalind](https://rosalind.info/problems/locations/),  
+4.文献检索  
+[SciHub](https://gfsoso.99lb.net/sci-hub.html),[SCUT_VPN](https://webvpn.scut.edu.cn/)
