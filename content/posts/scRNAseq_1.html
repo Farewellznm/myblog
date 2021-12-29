@@ -1,0 +1,83 @@
+---
+title: "10x转录组从SRA数据到表达矩阵"
+author: "LHS"
+date: "2021-12-28"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<blockquote>
+<p>遇到一个客户想用公开发表的10x并结合自己的样本来进行分析，但是提供了EBI下载的fastq数据，研究无果，自己从SRA中下载。</p>
+</blockquote>
+<div id="数据下载" class="section level1">
+<h1>数据下载</h1>
+<p>从NCBI SRA<a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA674356&amp;o=acc_s%3Aa">数据库</a>中选择研究的样本，导出SRR_Acc_List.txt；</p>
+<p>使用sratoolkit+aspera进行下载，具体安装可以参见RNAseq那篇<a href="https://www.liuhuisheng.com/posts/2021-11-02-rnaseq/">帖子</a>。</p>
+<pre class="bash"><code>cat SRR_Acc_List.txt | while read id
+do
+    prefetch -t ascp ${id}
+done</code></pre>
+</div>
+<div id="sra转fastq" class="section level1">
+<h1>SRA转fastq</h1>
+<p>由于10x文库的特殊性，不能用split-3，而用split-files</p>
+<pre class="bash"><code>cat SRR_Acc_List.txt  | while read id
+do 
+  nohup fastq-dump --gzip --split-files -O ../fastq/ ${id}
+done</code></pre>
+<p>结果产生SRR12973953_1.fastq.gz,SRR12973953_2.fastq.gz,SRR12973953_3.fastq.gz，等会再解释这三个文件的区别。接下来将这三个文件转换为10x格式。</p>
+<pre class="bash"><code>cat  SRR_Acc_List.txt | while read i 
+do 
+    mv ${i}_1*.gz ${i}_S1_L001_I1_001.fastq.gz
+    mv ${i}_2*.gz ${i}_S1_L001_R1_001.fastq.gz
+    mv ${i}_3*.gz ${i}_S1_L001_R2_001.fastq.gz
+done</code></pre>
+</div>
+<div id="同一个样本的reads进行合并" class="section level1">
+<h1>同一个样本的reads进行合并：</h1>
+<pre class="bash"><code>cat *_S1_L001_I1_001.fastq.gz &gt;&gt;  sample1_S1_L001_I1_001.fastq.gz 
+cat *_S1_L001_R1_001.fastq.gz &gt;&gt; sample1_S1_L001_R1_001.fastq.gz
+cat *_S1_L001_R2_001.fastq.gz &gt;&gt; sample1_S1_L001_R2_001.fastq.gz</code></pre>
+</div>
+<div id="x文库和数据结构" class="section level1">
+<h1>10x文库和数据结构</h1>
+<pre class="bash"><code>(bioinfo) [Sc03@login sample1]$ zcat SRR12973953_S1_L001_I1_001.fastq.gz | head
+@SRR12973953.1 A00682:391:HFJ2FDSXY:2:1101:1705:1000 length=8
+GCGCAGAA
++SRR12973953.1 A00682:391:HFJ2FDSXY:2:1101:1705:1000 length=8
+FFFF,F,F
+@SRR12973953.2 A00682:391:HFJ2FDSXY:2:1101:1994:1000 length=8
+GCGCAGAA
++SRR12973953.2 A00682:391:HFJ2FDSXY:2:1101:1994:1000 length=8
+FFFFFFFF
+@SRR12973953.3 A00682:391:HFJ2FDSXY:2:1101:3188:1000 length=8
+GCGCAGAA
+(bioinfo) [Sc03@login sample1]$ zcat SRR12973953_S1_L001_R1_001.fastq.gz | head
+@SRR12973953.1 A00682:391:HFJ2FDSXY:2:1101:1705:1000 length=28
+NCCGTGTTCGGCCAACCACGTTCGGGAA
++SRR12973953.1 A00682:391:HFJ2FDSXY:2:1101:1705:1000 length=28
+#FFFFFFFFFFFFFFFFFFFFFFFFFFF
+@SRR12973953.2 A00682:391:HFJ2FDSXY:2:1101:1994:1000 length=28
+NGAACGTAGCTGAGCAGTCAGAAGACTC
++SRR12973953.2 A00682:391:HFJ2FDSXY:2:1101:1994:1000 length=28
+#FFFFFFFFFFFFFFFFFFFFFFFFFFF
+@SRR12973953.3 A00682:391:HFJ2FDSXY:2:1101:3188:1000 length=28
+NGAACGTAGTCGCTATCTTGATCCATGG
+(bioinfo) [Sc03@login sample1]$ zcat SRR12973953_S1_L001_R2_001.fastq.gz | head
+@SRR12973953.1 A00682:391:HFJ2FDSXY:2:1101:1705:1000 length=150
+TGAAGAAGTGACAGATGATTCCAGGTATTGTACAAGCTCATGAATAAATCAGACATTCTATTATCAAAACTATTTTCTCTCAGCATGGACTGAGTAAGTTGAATTTGTTTTACAACTTACACTCTACAGAGAGAGCGAGAGTGAGAGAGA
++SRR12973953.1 A00682:391:HFJ2FDSXY:2:1101:1705:1000 length=150
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+@SRR12973953.2 A00682:391:HFJ2FDSXY:2:1101:1994:1000 length=150
+AGCGCCTCCAGGCCAAGAAGGAGGAGATCATCAAGACTTTATCCAAGGAGGAAGAGACCAAGAAATAAAACCTCCCACTTTGTCTGTACATACTGGCCTCTGTGATTACATAGATCAGCCATTAAAATAAAACAAGCCTTAAAAAAAAAA
++SRR12973953.2 A00682:391:HFJ2FDSXY:2:1101:1994:1000 length=150
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFF
+@SRR12973953.3 A00682:391:HFJ2FDSXY:2:1101:3188:1000 length=150
+GCTGGGGGTGCCCAGCATGTCCGCTCGCACTCGTCGCCCGCGTCCCTGCAGCTGGGCACCGGCGCGGGTGCTGCGGGTAGCCCCGCGCAGCAGCACGCGCACCTCCGCCAGCAGTCCTACGACGTGACCGACGAGCTGCCACTGCCCCCG
+</code></pre>
+</div>
