@@ -1,0 +1,24 @@
+---
+title: "文献分析01：Unraveling bone marrow architecture"
+author: "LHS"
+date: "2021-12-20"
+category: 科研
+tags: 
+  - 科研
+output: html_document
+---
+今天给大家分享一篇对Baccin等发表的单细胞与空转整合分析骨髓微环境2的评论。  
+骨髓 (Bone Marrow，BM) 中不同类型的间质细胞(stromal cells) 形成支持血细胞分化和确保主要血液谱系的终身造血的微环境 (Niches)。该篇文章结合单细胞、空间转录组 (spatial transcriptomics) 以及成像技术推断骨髓微环境中的细胞组成和空间结构。  
+造血干细胞和先祖细胞产生主要血液谱系细胞，离不开骨髓中间质细胞的支持。这些间质细胞组成多细胞的微生态，产生细胞因子(cytokines)，趋化因子(chemokines)，粘附分子(adhesion molecules)和其他的因子，调节血液细胞的自我更新和分化。因此定义微环境的细胞组成，它们在组织中的位置以及它们分泌的信号因子对于理解骨髓如何保障造血平衡是必不可少的。对骨髓微环境的细胞组成和结构的深入研究主要集中在对造血干细胞生态位的研究。在这些研究中，荧光报告被用于观察HSC的定位以及它们相关的候选生态位细胞，以及对特定的间质细胞进行条件消融或者细胞特异性敲除调控因子来鉴定关键的因素。在这些和其他研究中，现在认识到大部分HSCs位于窦(sinusoids)和巨核细胞(megakaryocytes)附近，少部分位于小动脉(arterioles)和骨内膜(endosteum)附近。内皮细胞(endothelial cells)的不同亚型、血管周细胞(perivascular cells) 和其他间质和造血细胞已经被鉴定为这些HSC生态位的组成成分，并且对生态位的作用具有重要贡献。然而，对于窦、小血管和骨内膜的细胞组成和一些重要调控细胞因子（如CXCL12和SCF）的来源仍然存在争议。尽管该领域的主要焦点一直是HSC生态位的鉴定，但也有证据表明存在特定对于谱系化的先祖细胞的生态位，但是这些问题仍然不清楚。Baccin等人揭示了骨髓小动脉、窦、非血管、骨内膜和骨内膜下区域之间令人惊讶的细胞和功能异质性并阐明了调节性细胞因子的主要来源。  
+Baccin等人首先运用了基于液滴的单细胞RNA测序(droplet-based RNAseq)刻绘了骨髓的细胞组成，主要集中在主要的造血干细胞和间质细胞谱系。这些初步分析解释了骨髓间质细胞的高度异质性。然后作者使用激光捕获显微解剖（LCM）解剖了窦、小动脉、骨内、骨下和非血管区域。与RNA测序相结合的优化的LCM测序可以确定不同区域的间质类群的分布。值得注意的是，作者通过骨切片免疫荧光成像验证了不同间质细胞在各自骨髓区域的位置。最后，他们利用生物信息学方法评估细胞黏附受体及其配体的表达，预测了特定细胞类型与五个骨髓区域的关联。另外，作者使用这种方法来定于不同骨髓区域的分化因子和生长因子的表达模式。  
+
+![研究路线](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/3.png?raw=true)
+
+之前的研究表明，血管周围间质细胞形成三维网络，包裹和支持骨髓血管。这一群体中的细胞已在Cxcl12-gfp报告小鼠中被鉴定为CAR（CXCL12丰富的网状）细胞，在Nestin-gfp报告小鼠中被鉴定为Nestin - GFPdim细胞，在LepR-cre小鼠中被鉴定为LepR+细胞。这些血管周围间质细胞是造血干细胞生态位的关键组成成分，并产生调节性细胞因子，例如CXCL12和SCF，维持HSC功能。  
+在这些血管周围的间质细胞群中，功能和细胞异质性显著存在。Baccin等在CAR群体中发现了两个不同的亚群，进一步了解这些小生境的复杂性。基于脂肪细胞(adipocyte)和骨遗传(osteolineage）基因的差异表达，他们将这些群体分别称为Adipo-CAR和Osteo-CAR细胞。值得注意的是，Adipo-CAR细胞显示了与LepR+细胞相似的基因表达模式，这表明它们是相同的群体。  
+
+
+1.Lucas, D., Salomonis, N. & Grimes, H.L. Unraveling bone marrow architecture. Nat Cell Biol 22, 5-6 (2020).  
+2.Baccin, C. et al. Combined single-cell and spatial transcriptomics reveal the molecular, cellular and spatial bone marrow niche organization. Nat Cell Biol 22, 38-48 (2020).
+                                                                                          
+                                                                                          
