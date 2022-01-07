@@ -11,7 +11,7 @@ output: html_document
 <script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
 
 
-<p><code>CellChat</code>使用配体受体对应的基因表达对来量化细胞间的相互作用。</p>
+<p><code>CellChat</code>使用配体受体对应的基因表达对来量化细胞间的相互作用。同时作者也开发了一个<code>CellChat</code>网页版<a href="http://www.cellchat.org/">浏览器</a></p>
 <p>具体原理可参见文献，<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <div class="figure">
 <img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/4.png?raw=true" alt="" />
@@ -75,7 +75,8 @@ head(cellchat@LR$LRsig)</code></pre>
 <img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/incoming.png?raw=true" alt="" />
 <p class="caption">incoming</p>
 </div>
-<p>结果的可视化</p>
+<p>结果的可视化<br />
+分层图中注意<code>vertex.receiver</code>第一个层次结构图中的目标的细胞组的索引.</p>
 <pre class="r"><code># Visualization
 # hierarchy
 netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), vertex.size = 5,layout = &quot;hierarchy&quot;,vertex.receiver = seq(1,4),pt.title=20,vertex.label.cex = 0.4) 
@@ -89,18 +90,12 @@ netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing
 netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;)
 netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,dot.size = 5)
 netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,dot.size = 5)</code></pre>
-<div class="figure">
-<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/hierarchy.png?raw=true" alt="" />
-<p class="caption">hierarchy</p>
-</div>
-<div class="figure">
-<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true" alt="" />
-<p class="caption">network</p>
-</div>
-<div class="figure">
-<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/signalingRole.png?raw=true" alt="" />
-<p class="caption">signalingRole</p>
-</div>
+<p>层次图中，实体圆和空心圆分别表示source和target。圆圈越大细胞数目越多，边缘颜色与信号源一致。线越粗，信号越强。
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/hierarchy.png?raw=true" alt="hierarchy" /></p>
+<p>经典的配受体圈图：
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true" alt="network" /></p>
+<p>识别细胞间通信网络中的主要发送者、接收者、调解者和影响者。
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/signalingRole.png?raw=true" alt="signalingRole" /></p>
 <div class="figure">
 <img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/river_outgoing.png?raw=true" alt="" />
 <p class="caption">river_outgoing</p>

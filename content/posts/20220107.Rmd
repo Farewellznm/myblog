@@ -8,7 +8,7 @@ tags:
 output: html_document
 ---
 
-`CellChat`使用配体受体对应的基因表达对来量化细胞间的相互作用。
+`CellChat`使用配体受体对应的基因表达对来量化细胞间的相互作用。同时作者也开发了一个`CellChat`网页版[浏览器](http://www.cellchat.org/)
 
 具体原理可参见文献，[^1]
 
@@ -86,7 +86,8 @@ cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = 
 ```
 ![incoming](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/incoming.png?raw=true)
 
-结果的可视化
+结果的可视化  
+分层图中注意`vertex.receiver`第一个层次结构图中的目标的细胞组的索引.
 ```{R eval=FALSE}
 # Visualization
 # hierarchy
@@ -104,11 +105,13 @@ netAnalysis_dot(cellchat,slot.name = "netP",pattern = "incoming",dot.size = 5)
 
 ```
 
-
+层次图中，实体圆和空心圆分别表示source和target。圆圈越大细胞数目越多，边缘颜色与信号源一致。线越粗，信号越强。
 ![hierarchy](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/hierarchy.png?raw=true)
 
+经典的配受体圈图：
 ![network](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true)
 
+识别细胞间通信网络中的主要发送者、接收者、调解者和影响者。
 ![signalingRole](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/signalingRole.png?raw=true)
 
 ![river_outgoing](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/river_outgoing.png?raw=true)
