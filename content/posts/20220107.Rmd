@@ -86,18 +86,14 @@ cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = 
 ```
 ![incoming](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/incoming.png?raw=true)
 
-
-
-
-
-
-
 结果的可视化
 ```{R eval=FALSE}
 # Visualization
-levels(cellchat@idents) 
+# hierarchy
 netVisual_aggregate(cellchat, signaling = c("CD99"), vertex.size = 5,layout = "hierarchy",vertex.receiver = seq(1,4),pt.title=20,vertex.label.cex = 0.4) 
+# circle
 netVisual_aggregate(cellchat, signaling = c("CD99"), layout = "circle", vertex.size = 5)
+# contribution
 netAnalysis_contribution(cellchat, signaling = c("CD99"))
 netAnalysis_signalingRole_heatmap(cellchat,pattern = "incoming")
 netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10)
@@ -107,6 +103,18 @@ netAnalysis_dot(cellchat,slot.name = "netP",pattern = "outgoing",dot.size = 5)
 netAnalysis_dot(cellchat,slot.name = "netP",pattern = "incoming",dot.size = 5)
 
 ```
+
+
+![hierarchy](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/hierarchy.png?raw=true)
+
+![network](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true)
+
+
+
+
+
+
+
 
 
 **Ref**

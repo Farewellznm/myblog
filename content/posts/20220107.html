@@ -77,9 +77,11 @@ head(cellchat@LR$LRsig)</code></pre>
 </div>
 <p>结果的可视化</p>
 <pre class="r"><code># Visualization
-levels(cellchat@idents) 
+# hierarchy
 netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), vertex.size = 5,layout = &quot;hierarchy&quot;,vertex.receiver = seq(1,4),pt.title=20,vertex.label.cex = 0.4) 
+# circle
 netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), layout = &quot;circle&quot;, vertex.size = 5)
+# contribution
 netAnalysis_contribution(cellchat, signaling = c(&quot;CD99&quot;))
 netAnalysis_signalingRole_heatmap(cellchat,pattern = &quot;incoming&quot;)
 netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10)
@@ -87,6 +89,14 @@ netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing
 netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;)
 netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,dot.size = 5)
 netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,dot.size = 5)</code></pre>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/hierarchy.png?raw=true" alt="" />
+<p class="caption">hierarchy</p>
+</div>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true" alt="" />
+<p class="caption">network</p>
+</div>
 <p><strong>Ref</strong></p>
 <div class="footnotes">
 <hr />
