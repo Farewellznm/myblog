@@ -62,18 +62,39 @@ cellchat <- identifyOverExpressedGenes(cellchat)
 cellchat <- identifyOverExpressedInteractions(cellchat)
 cellchat <- projectData(cellchat,PPI.human)
 ```
+推测细胞间在信号通路水平上的通讯,推测的每个配体-受体对的细胞间通信网络和每个信号通路分别存储在“net”和“netP”槽。显著性的配体受体在`cellchat@LR$LRsig`。
 ```{R eval=FALSE}
 # Interaction Inference
 cellchat <- computeCommunProb(cellchat) 
 cellchat <- computeCommunProbPathway(cellchat)
 cellchat <- aggregateNet(cellchat)
-cellchat <- netAnalysis_computeCentrality(cellchat,slot.name = "netP")
-cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "outgoing",k = 5)
-cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "incoming",k = 5)
 # Result
 head(cellchat@LR$LRsig)
-
 ```
+
+识别细胞群的信号转导作用，通过计算每个细胞群的网络中心性指标，CellChat允许随时识别细胞间通信网络中的主要发送者、接收者、调解者和影响者。
+```{R eval=FALSE}
+cellchat <- netAnalysis_computeCentrality(cellchat,slot.name = "netP")
+```
+识别分泌细胞外向（outgoing）交流模式和识别目标细胞的传入(incoming)通信模式。`pattern`参数一般默认为5.
+```{R eval=FALSE}
+cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "outgoing",k = 5)
+```
+
+
+
+
+
+```{R eval=FALSE}
+cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "incoming",k = 5)
+```
+
+
+
+
+
+
+
 
 结果的可视化
 ```{R eval=FALSE}

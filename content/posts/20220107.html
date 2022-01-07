@@ -55,15 +55,18 @@ cellchat &lt;- subsetData(cellchat)
 cellchat &lt;- identifyOverExpressedGenes(cellchat)
 cellchat &lt;- identifyOverExpressedInteractions(cellchat)
 cellchat &lt;- projectData(cellchat,PPI.human)</code></pre>
+<p>推测细胞间在信号通路水平上的通讯,推测的每个配体-受体对的细胞间通信网络和每个信号通路分别存储在“net”和“netP”槽。显著性的配体受体在<code>cellchat@LR$LRsig</code>。</p>
 <pre class="r"><code># Interaction Inference
 cellchat &lt;- computeCommunProb(cellchat) 
 cellchat &lt;- computeCommunProbPathway(cellchat)
 cellchat &lt;- aggregateNet(cellchat)
-cellchat &lt;- netAnalysis_computeCentrality(cellchat,slot.name = &quot;netP&quot;)
-cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,k = 5)
-cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,k = 5)
 # Result
 head(cellchat@LR$LRsig)</code></pre>
+<p>识别细胞群的信号转导作用，通过计算每个细胞群的网络中心性指标，CellChat允许随时识别细胞间通信网络中的主要发送者、接收者、调解者和影响者。</p>
+<pre class="r"><code>cellchat &lt;- netAnalysis_computeCentrality(cellchat,slot.name = &quot;netP&quot;)</code></pre>
+<p>识别分泌细胞外向（outgoing）交流模式和识别目标细胞的传入(incoming)通信模式。<code>pattern</code>参数一般默认为5.</p>
+<pre class="r"><code>cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,k = 5)</code></pre>
+<pre class="r"><code>cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,k = 5)</code></pre>
 <p>结果的可视化</p>
 <pre class="r"><code># Visualization
 levels(cellchat@idents) 
