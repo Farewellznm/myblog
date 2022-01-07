@@ -66,7 +66,15 @@ head(cellchat@LR$LRsig)</code></pre>
 <pre class="r"><code>cellchat &lt;- netAnalysis_computeCentrality(cellchat,slot.name = &quot;netP&quot;)</code></pre>
 <p>识别分泌细胞外向（outgoing）交流模式和识别目标细胞的传入(incoming)通信模式。<code>pattern</code>参数一般默认为5.</p>
 <pre class="r"><code>cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,k = 5)</code></pre>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/outging.png?raw=true" alt="" />
+<p class="caption">outgoing</p>
+</div>
 <pre class="r"><code>cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,k = 5)</code></pre>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/incoming.png?raw=true" alt="" />
+<p class="caption">incoming</p>
+</div>
 <p>结果的可视化</p>
 <pre class="r"><code># Visualization
 levels(cellchat@idents) 
