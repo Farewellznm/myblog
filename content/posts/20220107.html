@@ -1,0 +1,85 @@
+---
+title: "CellChat:细胞相互作用分析"
+author: "LHS"
+date: "2022-01-07"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p><code>CellChat</code>使用配体受体对应的基因表达对来量化细胞间的相互作用。</p>
+<p>具体原理可参见文献，<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/4.png?raw=true" alt="" />
+<p class="caption">CellChat流程</p>
+</div>
+<p>CellChat需要两个输入文件，一个是细胞的基因表达数据；一个是细胞的meta信息。基因表达矩阵要求的是均一化的数据<code>Seurat@assay$RNA@data</code>。如果是counts数据，可以用<code>normalizeData</code>函数来均一化。</p>
+<p>首先安装CellChat,以及进行输入数据的准备。从Seurat对象中提取CellChat的输入文件。</p>
+<pre class="r"><code>rm(list = ls())
+options(stringsAsFactors = F)
+#devtools::install_github(&quot;sqjin/CellChat&quot;,force = TRUE)
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(CellChat)
+  library(SeuratData)
+  library(ggplot2)
+  library(svglite)
+  library(ggalluvial)
+})
+try(attachNamespace(&#39;pbmc3k.SeuratData&#39;),silent = TRUE)
+data(&quot;pbmc3k.final&quot;)
+data.pbmc &lt;- pbmc3k.final@assays$RNA@data
+cellmeta &lt;- data.frame(group = pbmc3k.final$seurat_annotations, row.names = names(pbmc3k.final$seurat_annotations)) </code></pre>
+<p>创建CellChat对象，进行数据的预处理</p>
+<pre class="r"><code># create cellchat abj
+cellchat &lt;- createCellChat(object = data.pbmc)
+# add cellmeta
+cellchat &lt;- addMeta(cellchat,meta = cellmeta,meta.name = &quot;labels&quot;)
+# set &quot;labels&quot; as default cell identity
+cellchat &lt;- setIdent(cellchat,ident.use = &quot;labels&quot;)
+# table(cellchat@idents)</code></pre>
+<p>根据物种信息选取不同的数据库，支持human，mouse和zebrafish；CellChat 数据库记录了通路的受体和配体，以及不同类型的细胞相互作用方式,包括：Secreted Signaling,ECM-Receptor,Cell-Cell Contact。</p>
+<pre class="r"><code># import cellchat database
+CellChatDB &lt;- CellChatDB.human
+# Use Cell-Cell Contact for cellchat
+CellChatDB.use &lt;- subsetDB(CellChatDB,search = &quot;Cell-Cell Contact&quot;,key = &quot;annotation&quot;)
+# set the used database in the object
+cellchat@DB &lt;- CellChatDB.use</code></pre>
+<p>在这一步，首先提取cellchat中的信号基因，然后鉴定过表达的配体和受体，然后将基因表达数据投射到PPI网络上，为接下来相互作用的推断做铺垫；</p>
+<pre class="r"><code># pre processdata
+cellchat &lt;- subsetData(cellchat)
+cellchat &lt;- identifyOverExpressedGenes(cellchat)
+cellchat &lt;- identifyOverExpressedInteractions(cellchat)
+cellchat &lt;- projectData(cellchat,PPI.human)</code></pre>
+<pre class="r"><code># Interaction Inference
+cellchat &lt;- computeCommunProb(cellchat) 
+cellchat &lt;- computeCommunProbPathway(cellchat)
+cellchat &lt;- aggregateNet(cellchat)
+cellchat &lt;- netAnalysis_computeCentrality(cellchat,slot.name = &quot;netP&quot;)
+cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,k = 5)
+cellchat &lt;- identifyCommunicationPatterns(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,k = 5)
+# Result
+head(cellchat@LR$LRsig)</code></pre>
+<p>结果的可视化</p>
+<pre class="r"><code># Visualization
+levels(cellchat@idents) 
+netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), vertex.size = 5,layout = &quot;hierarchy&quot;,vertex.receiver = seq(1,4),pt.title=20,vertex.label.cex = 0.4) 
+netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), layout = &quot;circle&quot;, vertex.size = 5)
+netAnalysis_contribution(cellchat, signaling = c(&quot;CD99&quot;))
+netAnalysis_signalingRole_heatmap(cellchat,pattern = &quot;incoming&quot;)
+netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10)
+netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;)
+netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;)
+netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,dot.size = 5)
+netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;,dot.size = 5)</code></pre>
+<p><strong>Ref</strong></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Jin, S. et al. Inference and analysis of cell-cell communication using CellChat. Nature communications 12, 1088 (2021).<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

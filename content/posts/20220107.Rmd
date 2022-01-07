@@ -1,0 +1,97 @@
+---
+title: "CellChat:细胞相互作用分析"
+author: "LHS"
+date: "2022-01-07"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+
+`CellChat`使用配体受体对应的基因表达对来量化细胞间的相互作用。
+
+具体原理可参见文献，[^1]
+
+![CellChat流程](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/4.png?raw=true)
+
+CellChat需要两个输入文件，一个是细胞的基因表达数据；一个是细胞的meta信息。基因表达矩阵要求的是均一化的数据`Seurat@assay$RNA@data`。如果是counts数据，可以用`normalizeData`函数来均一化。
+
+首先安装CellChat,以及进行输入数据的准备。从Seurat对象中提取CellChat的输入文件。
+```{R eval=FALSE}
+rm(list = ls())
+options(stringsAsFactors = F)
+#devtools::install_github("sqjin/CellChat",force = TRUE)
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(CellChat)
+  library(SeuratData)
+  library(ggplot2)
+  library(svglite)
+  library(ggalluvial)
+})
+try(attachNamespace('pbmc3k.SeuratData'),silent = TRUE)
+data("pbmc3k.final")
+data.pbmc <- pbmc3k.final@assays$RNA@data
+cellmeta <- data.frame(group = pbmc3k.final$seurat_annotations, row.names = names(pbmc3k.final$seurat_annotations)) 
+```
+
+创建CellChat对象，进行数据的预处理
+```{R eval=FALSE}
+# create cellchat abj
+cellchat <- createCellChat(object = data.pbmc)
+# add cellmeta
+cellchat <- addMeta(cellchat,meta = cellmeta,meta.name = "labels")
+# set "labels" as default cell identity
+cellchat <- setIdent(cellchat,ident.use = "labels")
+# table(cellchat@idents)
+```
+根据物种信息选取不同的数据库，支持human，mouse和zebrafish；CellChat 数据库记录了通路的受体和配体，以及不同类型的细胞相互作用方式,包括：Secreted Signaling,ECM-Receptor,Cell-Cell Contact。
+```{R eval=FALSE}
+# import cellchat database
+CellChatDB <- CellChatDB.human
+# Use Cell-Cell Contact for cellchat
+CellChatDB.use <- subsetDB(CellChatDB,search = "Cell-Cell Contact",key = "annotation")
+# set the used database in the object
+cellchat@DB <- CellChatDB.use
+```
+在这一步，首先提取cellchat中的信号基因，然后鉴定过表达的配体和受体，然后将基因表达数据投射到PPI网络上，为接下来相互作用的推断做铺垫；
+```{R eval=FALSE}
+# pre processdata
+cellchat <- subsetData(cellchat)
+cellchat <- identifyOverExpressedGenes(cellchat)
+cellchat <- identifyOverExpressedInteractions(cellchat)
+cellchat <- projectData(cellchat,PPI.human)
+```
+```{R eval=FALSE}
+# Interaction Inference
+cellchat <- computeCommunProb(cellchat) 
+cellchat <- computeCommunProbPathway(cellchat)
+cellchat <- aggregateNet(cellchat)
+cellchat <- netAnalysis_computeCentrality(cellchat,slot.name = "netP")
+cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "outgoing",k = 5)
+cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "incoming",k = 5)
+# Result
+head(cellchat@LR$LRsig)
+
+```
+
+结果的可视化
+```{R eval=FALSE}
+# Visualization
+levels(cellchat@idents) 
+netVisual_aggregate(cellchat, signaling = c("CD99"), vertex.size = 5,layout = "hierarchy",vertex.receiver = seq(1,4),pt.title=20,vertex.label.cex = 0.4) 
+netVisual_aggregate(cellchat, signaling = c("CD99"), layout = "circle", vertex.size = 5)
+netAnalysis_contribution(cellchat, signaling = c("CD99"))
+netAnalysis_signalingRole_heatmap(cellchat,pattern = "incoming")
+netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10)
+netAnalysis_river(cellchat,slot.name = "netP",pattern = "outgoing")
+netAnalysis_river(cellchat,slot.name = "netP",pattern = "incoming")
+netAnalysis_dot(cellchat,slot.name = "netP",pattern = "outgoing",dot.size = 5)
+netAnalysis_dot(cellchat,slot.name = "netP",pattern = "incoming",dot.size = 5)
+
+```
+
+
+**Ref**
+
+[^1]: Jin, S. et al. Inference and analysis of cell-cell communication using CellChat. Nature communications 12, 1088 (2021).
