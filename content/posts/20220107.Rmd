@@ -80,7 +80,7 @@ cellchat <- netAnalysis_computeCentrality(cellchat,slot.name = "netP")
 ```{R eval=FALSE}
 cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "outgoing",k = 5)
 ```
-![outgoing](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/outging.png?raw=true)
+
 ```{R eval=FALSE}
 cellchat <- identifyCommunicationPatterns(cellchat,slot.name = "netP",pattern = "incoming",k = 5)
 ```
