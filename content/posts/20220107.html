@@ -82,9 +82,9 @@ netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), vertex.size = 5,l
 # circle
 netVisual_aggregate(cellchat, signaling = c(&quot;CD99&quot;), layout = &quot;circle&quot;, vertex.size = 5)
 # contribution
-netAnalysis_contribution(cellchat, signaling = c(&quot;CD99&quot;))
-netAnalysis_signalingRole_heatmap(cellchat,pattern = &quot;incoming&quot;)
-netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10)
+#netAnalysis_contribution(cellchat, signaling = c(&quot;CD99&quot;))
+#netAnalysis_signalingRole_heatmap(cellchat,pattern = &quot;incoming&quot;,signaling = &quot;CD99&quot;)
+netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10,signaling = &quot;CD99&quot;)
 netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;)
 netAnalysis_river(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&quot;)
 netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;outgoing&quot;,dot.size = 5)
@@ -96,6 +96,26 @@ netAnalysis_dot(cellchat,slot.name = &quot;netP&quot;,pattern = &quot;incoming&q
 <div class="figure">
 <img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true" alt="" />
 <p class="caption">network</p>
+</div>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/signalingRole.png?raw=true" alt="" />
+<p class="caption">signalingRole</p>
+</div>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/river_outgoing.png?raw=true" alt="" />
+<p class="caption">river_outgoing</p>
+</div>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/river_incoming.png?raw=true" alt="" />
+<p class="caption">river_incoming</p>
+</div>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/dot_outgoing.png?raw=true" alt="" />
+<p class="caption">dot_outgoing</p>
+</div>
+<div class="figure">
+<img src="https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/dot_incoming.png?raw=true" alt="" />
+<p class="caption">dot_incoming</p>
 </div>
 <p><strong>Ref</strong></p>
 <div class="footnotes">

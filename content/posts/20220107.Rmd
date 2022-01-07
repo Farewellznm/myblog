@@ -94,9 +94,9 @@ netVisual_aggregate(cellchat, signaling = c("CD99"), vertex.size = 5,layout = "h
 # circle
 netVisual_aggregate(cellchat, signaling = c("CD99"), layout = "circle", vertex.size = 5)
 # contribution
-netAnalysis_contribution(cellchat, signaling = c("CD99"))
-netAnalysis_signalingRole_heatmap(cellchat,pattern = "incoming")
-netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10)
+#netAnalysis_contribution(cellchat, signaling = c("CD99"))
+#netAnalysis_signalingRole_heatmap(cellchat,pattern = "incoming",signaling = "CD99")
+netAnalysis_signalingRole_network(cellchat,width = 12, height = 2.5, font.size = 10,signaling = "CD99")
 netAnalysis_river(cellchat,slot.name = "netP",pattern = "outgoing")
 netAnalysis_river(cellchat,slot.name = "netP",pattern = "incoming")
 netAnalysis_dot(cellchat,slot.name = "netP",pattern = "outgoing",dot.size = 5)
@@ -109,12 +109,15 @@ netAnalysis_dot(cellchat,slot.name = "netP",pattern = "incoming",dot.size = 5)
 
 ![network](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/network.png?raw=true)
 
+![signalingRole](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/signalingRole.png?raw=true)
 
+![river_outgoing](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/river_outgoing.png?raw=true)
 
+![river_incoming](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/river_incoming.png?raw=true)
 
+![dot_outgoing](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/dot_outgoing.png?raw=true)
 
-
-
+![dot_incoming](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/CellChat/dot_incoming.png?raw=true)
 
 
 **Ref**
