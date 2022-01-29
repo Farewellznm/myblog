@@ -21,8 +21,6 @@ rm(list = ls())
 suppressPackageStartupMessages({
   library(Seurat)
   library(tidyverse)
-  library(cowplot)
-  library(optparse)
 })
 
 # load data
