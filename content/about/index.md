@@ -23,12 +23,3 @@ https://www.jianshu.com/u/cf0181bb1a45
 3、Jiayuan Zhong  
 他主要感兴趣的研究方向是使用计算机方法预测非线性动态系统的临界点
 
-**网站资源**  
-1.数据库  
-[GEO](https://www.ncbi.nlm.nih.gov/geoprofiles/?term=),[stemmapper](http://stemmapper.sysbiolab.eu/)  
-2.学习资源  
-[B站](https://www.bilibili.com/),[菜鸟教程](https://www.runoob.com/)  
-3.编程乐园  
-[Rosalind](https://rosalind.info/problems/locations/),  
-4.文献检索  
-[SciHub](https://gfsoso.99lb.net/sci-hub.html),[SCUT_VPN](https://webvpn.scut.edu.cn/)

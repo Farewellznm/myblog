@@ -15,8 +15,8 @@ menu:
     - name: Writings
       url: /posts
       weight: 2
-    - name: Topics
-      url: /tags
+    - name: Toolkits
+      url: /Toolkits
       weight: 3
     - name: Solitude
       url: /Solitude
@@ -48,7 +48,7 @@ params:
       name: github
     - link: huishengliu06@gmail.com
       name: email
-  tagsOverview: no
+  tagsOverview: yes
   enableEmoji: True
   
   
