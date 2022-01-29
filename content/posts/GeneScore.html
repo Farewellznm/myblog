@@ -1,0 +1,41 @@
+---
+title: "单细胞基因集评分函数：AddModuleScore"
+author: "Huisheng Liu"
+date: "2022/1/29"
+category: 组学分析
+tags: 
+- 组学分析
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<style type="text/css">
+.badCode {
+background-color: #BDFCC9 ;
+}
+</style>
+<p><code>Seurat</code>包自带了一个很好用的打分函数<code>AddModuleScore</code>,在评估细胞周期(CellCycleScoring)也用到了这个函数，这个函数还可以用于特定基因集的打分。在这里我们使用<code>EMT</code>基因集，来评估不同cluster在不同处理下的评分。</p>
+<pre class="r badCode"><code>rm(list = ls())
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(tidyverse)
+  library(cowplot)
+  library(optparse)
+})
+
+# load data
+sce &lt;- readRDS(&quot;All_sample_combined.rds&quot;)
+Idents(sce) &lt;- &quot;seurat_clusters&quot;
+genelist &lt;- read.table(&quot;genelist.txt&quot;,header = T)
+genelist &lt;- list(genelist)
+sce &lt;- Seurat::AddModuleScore(object = sce,features = genelist,ctrl = 100,name = &quot;EMT&quot;)
+colnames(sce@meta.data)[22] &lt;- &quot;EMT_Score&quot;
+VlnPlot(sce,features = &quot;EMT_Score&quot;,split.by = &quot;group&quot;)</code></pre>
+<p><img src="/posts/GeneScore_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>从Seurat对象中导出结果绘制箱线图。</p>
+<pre class="r badCode"><code>data &lt;- FetchData(sce,vars = c(&quot;seurat_clusters&quot;,&quot;group&quot;,&quot;EMT_Score&quot;))
+p &lt;- ggplot(data = data,aes(seurat_clusters,EMT_Score,fill = group))
+p + geom_boxplot() + theme_bw() + RotatedAxis() + labs(title = &quot;EMT_Score&quot;,y = &quot;Score&quot;) + theme(plot.title = element_text(hjust = 0.5),axis.text = element_text(size = 10,face = &quot;bold&quot;),axis.title.x = element_text(size = 12),axis.title.y = element_text(size = 12)) </code></pre>
+<p><img src="/posts/GeneScore_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
