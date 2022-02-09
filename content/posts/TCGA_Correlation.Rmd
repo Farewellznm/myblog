@@ -1,0 +1,74 @@
+---
+title: "TCGA绘制基因表达量之间的拟合曲线与相关性"
+author: "LHS"
+date: "2022-02-09"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+---
+
+```{css echo=FALSE}
+.badCode {
+background-color: #BC8F8F ;
+}
+```
+
+新的一年，继续努力呀！  
+大家都从哪里下载TCGA数据的呢？[TCGA GDC](https://portal.gdc.cancer.gov/),或者是`TCGAbiolinks`,这次推荐[UCSC xena](https://xenabrowser.net/datapages/),里面有整理好的TCGA表达矩阵、基因注释文件以及meta信息,我们进行稍加处理就能进一步使用。  
+这次的需求是研究TCGA表达矩阵中候选基因之间的相关性.已经在UCSC xena中下载好了FPKM、基因注释，如果需要对样本进行过滤可以进一步下载meta信息；同时也准备了候选基因的列表genes.txt。  
+代码如下：
+
+```{R class.source="badCode",val = T,eval=FALSE}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(ggpubr)
+})
+project.dir <- getwd()
+setwd(project.dir)
+exp <- read.delim("data/TCGA-LUAD.htseq_fpkm.tsv", header=T,row.names = 1)
+exp <- as.matrix(exp)
+# gene annotation
+anno <- read.delim("data/gencode.v22.annotation.gene.probeMap",header = T,row.names = 1)
+exp_anno <- cbind(exp,anno)
+exp_anno <- exp_anno[,1:586]
+exp_anno <- dplyr::select(exp_anno,gene,everything())
+write.csv(exp_anno,"exp_anno.csv")
+# genes
+genes <- read.table("data/genes.txt")
+genes <- c(genes$V1)
+index <- which(exp_anno$gene %in% genes)
+genes_exp <- exp_anno[index,]
+rownames(genes_exp) <- genes_exp$gene
+genes_exp <- genes_exp[,-1]
+# 变换 log2(fpkm+1)
+genes_exp_FPKM <- 2^genes_exp - 1
+genes_exp_log10 <- log10(genes_exp_FPKM + 1)
+# plot
+exp.plot <- read.csv("Result/genes_exp_log10.csv",row.names = 1)
+exp.plot <- t(genes_exp_log10)
+exp.plot <- as.matrix(exp.plot)
+res <- cor(exp.plot,use = "everything",method = "spearman")
+dir.create(paste(project.dir,"Result",sep = "/"))
+setwd(dir = "Result/")
+ggplot(data = exp.plot, aes(x = CD33, y = FOXP3)) + geom_point(color = "red") + stat_smooth(method="lm",se = FALSE) + theme_bw() + stat_cor(data = exp.plot, method = "spearman") + labs(x = expression("CD33 expression"* "(log"["10"] * ")" ),y =expression("FOXP3 expression"* "(log"["10"] * ")" ) ) 
+ggsave(filename = "CD33_FOXP3.png", width = 8,height = 7)
+write.csv(res,"gene_Correlation _coefficient.csv")
+write.csv(exp.plot,"genes_exp_log10.csv")
+```
+
+代码中需要学习和注意的点：
+
+1. UCSC xena 中的表达矩阵，FPKM或者count都是经过log2处理过后的，记得按自己需求进行转换；
+
+2. dplyr::select(exp_anno,gene,everything())可以将感兴趣的变量提取到第一行；
+
+3. 这里计算Correlation _coefficient用的都是`spearman`相关系数，在ggpubr::stat_cor中注意统一；
+
+4. 可以先计算相关系数，挑选相关系数大的基因对来绘制拟合曲线图。
+
+
+分析结果如下：
+
+![Result](./pic/TCGA_Correlation.png "CD163_CXCL12")

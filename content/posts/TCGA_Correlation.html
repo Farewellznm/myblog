@@ -1,0 +1,70 @@
+---
+title: "TCGA绘制基因表达量之间的拟合曲线与相关性"
+author: "LHS"
+date: "2022-02-09"
+category: Bioinfo
+tags: 
+- Bioinfo
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<style type="text/css">
+.badCode {
+background-color: #BC8F8F ;
+}
+</style>
+<p>新的一年，继续努力呀！<br />
+大家都从哪里下载TCGA数据的呢？<a href="https://portal.gdc.cancer.gov/">TCGA GDC</a>,或者是<code>TCGAbiolinks</code>,这次推荐<a href="https://xenabrowser.net/datapages/">UCSC xena</a>,里面有整理好的TCGA表达矩阵、基因注释文件以及meta信息,我们进行稍加处理就能进一步使用。<br />
+这次的需求是研究TCGA表达矩阵中候选基因之间的相关性.已经在UCSC xena中下载好了FPKM、基因注释，如果需要对样本进行过滤可以进一步下载meta信息；同时也准备了候选基因的列表genes.txt。<br />
+代码如下：</p>
+<pre class="r badCode"><code>suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(ggpubr)
+})
+project.dir &lt;- getwd()
+setwd(project.dir)
+exp &lt;- read.delim(&quot;data/TCGA-LUAD.htseq_fpkm.tsv&quot;, header=T,row.names = 1)
+exp &lt;- as.matrix(exp)
+# gene annotation
+anno &lt;- read.delim(&quot;data/gencode.v22.annotation.gene.probeMap&quot;,header = T,row.names = 1)
+exp_anno &lt;- cbind(exp,anno)
+exp_anno &lt;- exp_anno[,1:586]
+exp_anno &lt;- dplyr::select(exp_anno,gene,everything())
+write.csv(exp_anno,&quot;exp_anno.csv&quot;)
+# genes
+genes &lt;- read.table(&quot;data/genes.txt&quot;)
+genes &lt;- c(genes$V1)
+index &lt;- which(exp_anno$gene %in% genes)
+genes_exp &lt;- exp_anno[index,]
+rownames(genes_exp) &lt;- genes_exp$gene
+genes_exp &lt;- genes_exp[,-1]
+# 变换 log2(fpkm+1)
+genes_exp_FPKM &lt;- 2^genes_exp - 1
+genes_exp_log10 &lt;- log10(genes_exp_FPKM + 1)
+# plot
+exp.plot &lt;- read.csv(&quot;Result/genes_exp_log10.csv&quot;,row.names = 1)
+exp.plot &lt;- t(genes_exp_log10)
+exp.plot &lt;- as.matrix(exp.plot)
+res &lt;- cor(exp.plot,use = &quot;everything&quot;,method = &quot;spearman&quot;)
+dir.create(paste(project.dir,&quot;Result&quot;,sep = &quot;/&quot;))
+setwd(dir = &quot;Result/&quot;)
+ggplot(data = exp.plot, aes(x = CD33, y = FOXP3)) + geom_point(color = &quot;red&quot;) + stat_smooth(method=&quot;lm&quot;,se = FALSE) + theme_bw() + stat_cor(data = exp.plot, method = &quot;spearman&quot;) + labs(x = expression(&quot;CD33 expression&quot;* &quot;(log&quot;[&quot;10&quot;] * &quot;)&quot; ),y =expression(&quot;FOXP3 expression&quot;* &quot;(log&quot;[&quot;10&quot;] * &quot;)&quot; ) ) 
+ggsave(filename = &quot;CD33_FOXP3.png&quot;, width = 8,height = 7)
+write.csv(res,&quot;gene_Correlation _coefficient.csv&quot;)
+write.csv(exp.plot,&quot;genes_exp_log10.csv&quot;)</code></pre>
+<p>代码中需要学习和注意的点：</p>
+<ol style="list-style-type: decimal">
+<li><p>UCSC xena 中的表达矩阵，FPKM或者count都是经过log2处理过后的，记得按自己需求进行转换；</p></li>
+<li><p>dplyr::select(exp_anno,gene,everything())可以将感兴趣的变量提取到第一行；</p></li>
+<li><p>这里计算Correlation _coefficient用的都是<code>spearman</code>相关系数，在ggpubr::stat_cor中注意统一；</p></li>
+<li><p>可以先计算相关系数，挑选相关系数大的基因对来绘制拟合曲线图。</p></li>
+</ol>
+<p>分析结果如下：</p>
+<div class="figure">
+<img src="pic/TCGA_Correlation.png" title="CD163_CXCL12" alt="" />
+<p class="caption">Result</p>
+</div>
