@@ -71,4 +71,4 @@ write.csv(exp.plot,"genes_exp_log10.csv")
 
 分析结果如下：
 
-![Result](./pic/TCGA_Correlation.png "CD163_CXCL12")
+![Result](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/TCGA_Correlation.png?raw=true "CD163_CXCL12")
