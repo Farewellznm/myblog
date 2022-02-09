@@ -62,7 +62,7 @@ write.csv(exp.plot,"genes_exp_log10.csv")
 
 1. UCSC xena 中的表达矩阵，FPKM或者count都是经过log2处理过后的，记得按自己需求进行转换；
 
-2. dplyr::select(exp_anno,gene,everything())可以将感兴趣的变量提取到第一行；
+2. dplyr::select(exp_anno,gene,everything())可以将感兴趣的变量提取到第一列；
 
 3. 这里计算Correlation _coefficient用的都是`spearman`相关系数，在ggpubr::stat_cor中注意统一；
 
@@ -72,3 +72,4 @@ write.csv(exp.plot,"genes_exp_log10.csv")
 分析结果如下：
 
 ![Result](https://github.com/Farewellznm/myblog/blob/main/content/posts/pic/TCGA_Correlation.png?raw=true "CD163_CXCL12")
+

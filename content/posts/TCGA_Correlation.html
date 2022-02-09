@@ -59,7 +59,7 @@ write.csv(exp.plot,&quot;genes_exp_log10.csv&quot;)</code></pre>
 <p>代码中需要学习和注意的点：</p>
 <ol style="list-style-type: decimal">
 <li><p>UCSC xena 中的表达矩阵，FPKM或者count都是经过log2处理过后的，记得按自己需求进行转换；</p></li>
-<li><p>dplyr::select(exp_anno,gene,everything())可以将感兴趣的变量提取到第一行；</p></li>
+<li><p>dplyr::select(exp_anno,gene,everything())可以将感兴趣的变量提取到第一列；</p></li>
 <li><p>这里计算Correlation _coefficient用的都是<code>spearman</code>相关系数，在ggpubr::stat_cor中注意统一；</p></li>
 <li><p>可以先计算相关系数，挑选相关系数大的基因对来绘制拟合曲线图。</p></li>
 </ol>
