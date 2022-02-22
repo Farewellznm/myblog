@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 2021年6月我挣扎着从五山禅院大学城分校硕士毕业了；最爱的是广州的木棉花，最难忍受的是潮热和暴雨。然而因为一些原因，我来上海工作了，作为一个【新参者】我逐渐熟悉着这座城市，2021年对于我来说是充实的一年。
+  description: 2022年2月22号，农历22号，星期2，我们22点22分看完【花束般的恋爱】，沿着川杨河慢慢地走回家。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
