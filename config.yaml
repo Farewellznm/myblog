@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 2022年2月22号，农历22号，星期2，我们22点22分看完【花束般的恋爱】，沿着川杨河慢慢地走回家。
+  description: 红墙绿竹石径，还有谁的背影。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 

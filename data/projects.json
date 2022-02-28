@@ -1,9 +1,16 @@
 {
   "list": [
     {
-      "name":"我的第一篇SCI",
+      "name":"[1]",
       "url":"https://www.sciencedirect.com/science/article/pii/S2372770521000838",
-      "desc":"基因动态网络生物标志物挖掘结直肠癌免疫过程中的标志物；"
+      "desc":"Liu, H. et al. Single-cell transcriptomics reveal DHX9 in mature B cell as a dynamic network biomarker before lymph node metastasis in CRC. Molecular Therapy - Oncolytics 22, 495-506 (2021) IF = 7.2(2020) JCR Q1 "
+    },
+    
+    {
+      "name":"[2]",
+      "url":"https://www.frontiersin.org/articles/10.3389/fnagi.2021.686066/full",
+      "desc":"Huang, Y, Liu, H. et al. Significant Difference of Immune Cell Fractions and Their Correlations With Differential Expression Genes in Parkinson’s Disease.  13 (2021) IF = 5.8(2020) JCR Q1"
     }
+    
   ]
 }
