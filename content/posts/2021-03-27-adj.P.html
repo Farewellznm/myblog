@@ -9,7 +9,6 @@ tags: 统计
 category: 统计
 ---
 
-<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
 
 
 <div id="假设检验" class="section level1">
@@ -77,7 +76,7 @@ summary(qobj)</code></pre>
 ## q-value        0      0     1     73   162  319 3170
 ## local FDR      0      0     3     30    85  167 2241</code></pre>
 <pre class="r"><code>hist(qobj)</code></pre>
-<p><img src="/posts/2021-03-27-adj.P是如何矫正的_files/figure-html/R for FDR-1.png" width="672" />
+<p><img src="/posts/2021-03-27-adj.P_files/figure-html/R%20for%20FDR-1.png" width="672" />
 π0:the proportion of true null hypotheses π0,</p>
 <p>在生物样本分析中，例如一个转录组分析，一个默认假设是：通常差异基因只有总体基因的10%以下，大部分都是非差异的，服从均匀分布；差异的部分远小于非差异，其中p&lt;0.05时，大部分（仅有0.17为阳性）为无差异的结果（如图所示），所以BH的目的提高筛选阈值，尽可能保留真阳性。</p>
 </div>

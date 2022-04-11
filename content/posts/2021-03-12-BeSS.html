@@ -8,7 +8,6 @@ tags:
 output: html_document
 ---
 
-<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
 
 
 <p>对于超高维数据（上万维）的最优子集选择面临着“维数灾难”<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。常见的方法是通过正则化将最优子集问题转化为计算可行性问题，例如glmnet通过坐标下降法来解决<code>LASSO</code>（L1范数）问题。然而，原始对偶激活集算法（Primal Dual Active Set，<code>PDAS</code>）通过引入激活集，对所有β进行批量迭代，可以处理超高维数据。Canhong Wen等对PDAS泛化的损失函数的搜索步长（超参）进行优化，开发了一个新的R包：BeSS（(best subset selection)<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>，在高维数据上非常高效和稳定，可用于Cox’s proportional hazard (<code>CoxPH</code>) models等模型的最优子集的选择，这也是本人感兴趣的研究内容。几年前碰巧参加了统计之都举办的第11届R会议<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> ，论文共同作者全世杰对该方法进行了详细的讲解，现在终于有机会尝试一下这个方法。</p>
