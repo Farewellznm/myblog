@@ -33,8 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 黄色的树林里分出两条路/可惜我不能同时去涉足/我在那路口久久伫立/我向着一条路极目望去/直到它消失在丛林的深处/但我却选了另外一条路
-。
+  description: 那些日子里，我总是喜欢走在你身后。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
