@@ -19,7 +19,7 @@ TODOLIST(2022)：
 https://bbruceyuan.github.io  
 2、白夜无寐  
 研究生师兄；贡献了一篇RNAseq教程  
-https://www.jianshu.com/u/cf0181bb1a45  
+https://www.jianshu.com/u/cf0181bb1a45；他最近折腾了一个新的博客 https://biobrick.github.io/  
 3、Jiayuan Zhong  
 他主要感兴趣的研究方向是使用计算机方法预测非线性动态系统的临界点
 
