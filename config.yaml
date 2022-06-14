@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 没有钱用，但又懒得去挣钱。请您给我寄一些钱来吧！我决不食言：我只懒到5月份，从6月1日起我就坐下来写作。
+  description: 离开上海啦，人情冷暖！
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
