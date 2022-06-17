@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 离开上海啦，人情冷暖！
+  description: 2021年7月，我从华南理工大学毕业啦！
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
