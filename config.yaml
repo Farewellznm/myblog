@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 2021年7月，我从华南理工大学毕业啦！
+  description: 很久没写总结了。
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
