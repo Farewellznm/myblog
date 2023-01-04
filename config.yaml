@@ -33,7 +33,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 很久没写总结了。
+  description: 2022年有苦闷的时期，也有悠长之假期，悟已往之不谏，知来者犹可追，希望新的一年会更好！
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
