@@ -11,16 +11,14 @@ menu:
       weight: 1
     - name: About
       url: /about
-      weight: 5
+      weight: 4
     - name: Writings
       url: /posts
       weight: 2
     - name: Toolkits
       url: /Toolkits
       weight: 3
-    - name: Solitude
-      url: /Solitude
-      weight: 4
+
 
 markup:
   tableOfContents:
@@ -37,7 +35,7 @@ params:
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
-  postsOnHomePage: 10
+  postsOnHomePage: 6
   projectsUrl: https://github.com/Farewellznm
   rss: yes
   show_updated: yes
