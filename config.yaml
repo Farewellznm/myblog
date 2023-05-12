@@ -11,13 +11,16 @@ menu:
       weight: 1
     - name: About
       url: /about
-      weight: 4
+      weight: 5
     - name: Writings
       url: /posts
       weight: 2
-    - name: Toolkits
-      url: /Toolkits
-      weight: 3
+#    - name: Toolkits
+#      url: /Toolkits
+#      weight: 3
+    - name: 中文
+      url: /writes
+      weight: 4
 
 
 markup:
@@ -31,7 +34,7 @@ params:
     enabled: no
     engine: disqus
   dateFormat: '2006-01-02'
-  description: 2022年有苦闷的时期，也有悠长之假期，悟已往之不谏，知来者犹可追，希望新的一年会更好！
+  description: Perhaps for a longer period of time, with periods of bitterness and long vacations，What should be done at these times?
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
