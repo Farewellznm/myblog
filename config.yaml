@@ -31,25 +31,25 @@ markup:
 params:
   colortheme: light
   comments:
-    enabled: no
+    enabled: yes
     engine: disqus
   dateFormat: '2006-01-02'
   description: Perhaps for a longer period of time, with periods of bitterness and long vacations，What should be done at these times?
   mathjax: yes
   googleAnalyticsAsync: yes
   mainSection: posts 
-  postsOnHomePage: 6
+  postsOnHomePage: 4
   projectsUrl: https://github.com/Farewellznm
   rss: yes
   show_updated: yes
   showAllPostsOnHomePage: no
-  showProjectsList: yes
+  showProjectsList: no
   social:
     - link: https://github.com/Farewellznm
       name: github
     - link: huishengliu06@gmail.com
       name: email
-  tagsOverview: yes
+  tagsOverview: no
   enableEmoji: True
   
   
